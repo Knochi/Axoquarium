@@ -1,8 +1,11 @@
 $fn=50;
-LED5();
-translate([0,10,0]) LED5730("blue");
-translate([0,-10,0]) PLCC6("blue");
-translate([0,-20,0]) res1210();
+projection(true){
+    LED5();
+    translate([0,10,0]) LED5730("blue");
+    translate([0,20,0]) PLCC6("blue");
+    translate([0,30,0]) res1210();
+    translate([0,40,0]) SOT23();
+}
 
 module LED5(col="red",angle=0)
 {
@@ -71,9 +74,19 @@ module PLCC6 (col="red",angle=0)
 module res1210()
 {
     //body
-    color("black") translate([0,0,0.3]) cube([3.2,2.5,0.55],true);
+    color("black") translate([0,0,0.325]) cube([3.2,2.5,0.55],true);
     //leads
     color("grey") translate([(2.0+0.9)/2,0,0]) cube([0.9,2.8,0.2],true);
     color("grey") translate([-(2.0+0.9)/2,0,0]) cube([0.9,2.8,0.2],true);
     
+}
+
+module SOT23()
+{
+    //body
+    color("black") translate([0,0,0.55]) cube([1.3,2.9,1],true);
+    //pads
+    color("grey") translate([-1,0,0]) cube([0.8,0.9,0.2],true);
+    color("grey") translate([1,0.95,0]) cube([0.8,0.9,0.2],true);
+    color("grey") translate([1,-0.95,0]) cube([0.8,0.9,0.2],true);
 }
