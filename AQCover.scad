@@ -2,7 +2,7 @@ use <LED.scad>
 use <MCAD/nuts_and_bolts.scad>
 
 fanth=34;
-sheetth=8;
+sheetth=3; //thickness of the top sheet
 glasth=5;
 $fn=100;
 shimwdth=40;
@@ -10,10 +10,15 @@ innerwdth=337;
 innerlgth=502;
 fudge=0.1;
 
+
+*projection(true)
+    rotate([0,90,0])
+    tempSens(100,sheetth,0.1,cutChildren=false);
+ 
+ 
 //the sheet
-
-
-    tempSens(100,8,0.1,[ -116.06, 224.07, -4 ])
+//projection(true)
+    tempSens(100,sheetth,0.1,[ -116.17, 197.54, -1.5 ])
 
         difference(){
             cube([innerwdth-2,innerlgth,sheetth],true); // Sheet Acryl
@@ -23,8 +28,7 @@ fudge=0.1;
                 }
         4drills(104.8/2,4.5,sheetth);
     }
-//temp sens
-//translate([-100,220,-4]) tempSens(150,8);
+
 
 // the Fan
 translate([0,0,fanth/2]) difference() {
@@ -61,36 +65,34 @@ module LEDMatrix(rows,cols,row_spc,col_spc,res=true){
         for (j = [-rows/2:rows/2]) { //row  i.e. 6
             
             union(){
-            translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED5730("blue",120); //LEDs
-            color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-5.7,1,0.2],true); //connection
+                translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED5730("blue",0); //LEDs
+                color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-5.7,1,0.2],true); //connection
                 
-            if (i==cols/2){ //only once per row
-              
-                echo(col_spc);
-                
-                    //#spaces * regular distance + #spaces * reduced distance                     
-                translate([(cols/2+1)*col_spc,j*row_spc,0]) rotate([0,180,0]) res1210(); //resistor (one per row)
-                translate([(cols/2+2)*col_spc,j*row_spc,0]) rotate([0,180,180]) SOT23(); //transistor (one per row)
-                
-                color("grey"){   
-                    //#spaces * regular distance - half distance + #spaces * reduced distance                     
-                                                                             //-5.7 is center, +width of comp
-                    translate([(cols/2+1)*col_spc-col_spc/2+0.6,j*row_spc,0])cube([(col_spc-5.7)+1.2,1,0.2],true); //connection to res
+                if (i==cols/2){ //only once per row
+
+                    //#spaces * regular distance + reduced distances                     
+                    translate([(cols/2)*col_spc+6,j*row_spc,0]) rotate([0,180,0]) res1210(); //resistor (one per row)
+                    translate([(cols/2)*col_spc+10.5,j*row_spc,0]) rotate([0,180,180]) SOT23(); //transistor (one per row)
                     
-                    translate([(cols/2+1)*col_spc-col_spc/2+0.6,j*row_spc,0])cube([(col_spc-5.7)+1.2,1,0.2],true); //connection to res
-                    translate([(cols/2+2)*col_spc-col_spc/2+0.3,j*row_spc,0])cube([(col_spc-5.7)+3,1,0.2],true); //connection to SOT23
-                   
-               }
+                    color("grey"){   
+                        //#spaces * regular distance + reduced distances
+                                                                                 //-5.7 is center, +width of comp
+                        translate([(cols/2)*col_spc+3.5,j*row_spc,0])cube([2,1,0.2],true); //connection to res
+                        translate([(cols/2)*col_spc+8.5,j*row_spc,0])cube([2,1,0.2],true); //connection to SOT23
+                        translate([(cols/2)*col_spc+13.5,j*row_spc+0.95,0])cube([4,1,0.2],true); //connection to PWM-Signal
+                        translate([(cols/2)*col_spc+13.5,j*row_spc-0.95,0])cube([4,1,0.2],true); //connection to Gnd
+                       
+                   } //color
                 
-            }
-        }
+                } //if
+            } //union traces and pads
         }
         
     }
     
 }
 
-module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0]) //DS18b2 wired waterproof sensor
+module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true) //DS18b2 wired waterproof sensor
 {   
     sensLen=50;
     sensDia=6;
@@ -111,6 +113,7 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0]) //DS18b2 wired w
         translate()
             union(){
                 translate([0,-(sheetWd+cableDia)/4,topSheetTh/2]) cube([sheetTh,6,topSheetTh+fudge],true); //tongue
+                translate([0,sheetWd/2-1.5,topSheetTh/2]) cube([sheetTh,3,topSheetTh+fudge],true); //tongue
                 
                 difference(){
                     minkowski() { //roundings
@@ -128,32 +131,24 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0]) //DS18b2 wired w
                     translate([0,(sheetWd+cableDia)/4,0]) cube([3+fudge,3+fudge,25],true);
                     
                 }
-                 color("grey",0.9) translate([0,(sheetWd+cableDia)/4,topSheetTh]) rotate([180]) boltHole(size=3,length=20);
-                 color("grey",0.9) translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3);
+                 %translate([0,(sheetWd+cableDia)/4,topSheetTh]) rotate([180]) boltHole(size=3,length=20);
+                 %translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3);
             }
         }
      // placeholders for drills
-        echo(position);
-            difference(){
-                children(0);
-                translate(position) {
-                    translate([0,0,-fudge/2]) cylinder(h=topSheetTh+fudge,d=cableDia+fudge); //drill for cable                    
-                    translate([0,(sheetWd+cableDia)/4,-fudge/2]) cylinder(h=topSheetTh+fudge,d=3+fudge); //drill for bolt
-                    translate([0,-(sheetWd+cableDia)/4,topSheetTh/2-fudge/2]) cube([sheetTh+fudge,6+fudge,topSheetTh+fudge],true); //groove
-                }
-                
-                
+            if (cutChildren)    
+                difference(){
+                    children(0);
+                    translate(position) {
+                        translate([0,0,-fudge/2]) cylinder(h=topSheetTh+fudge,d=cableDia+fudge); //drill for cable                    
+                        translate([0,(sheetWd+cableDia)/4,-fudge/2]) cylinder(h=topSheetTh+fudge,d=3+fudge); //drill for bolt
+                        //groove
+                        translate([0,-(sheetWd+cableDia)/4,topSheetTh/2-fudge/2]) cube([sheetTh+fudge,6+fudge,topSheetTh+fudge],true);
+                        translate([0,sheetWd/2-1.5,topSheetTh/2-fudge/2]) cube([sheetTh+fudge,3+fudge,topSheetTh+fudge],true); //tongue
+                    }
             }
+                
+        
         
 }
 
-module drill4sens()
-{
-    topSheetTh=8;
-    cableDia=4;
-    fudge=0.2;
-    border=10;
-    roudness=4;
-    translate([0,0,-fudge/2]) cylinder(h=topSheetTh+fudge,d=cableDia+fudge);
-    translate([0,(border+roundness)/2,-fudge/2]) cylinder(h=topSheetTh+fudge,d=3+fudge);
-}
