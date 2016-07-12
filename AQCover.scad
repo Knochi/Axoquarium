@@ -106,7 +106,7 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
     electrHg=16; //height of electrodes
     electrDia=2; //Diameter of electrodes
     
-    translate(position) {
+    !translate(position) {
         //sensor + cable
         translate([0,0,-cableLen]) union() {
             translate([0,0,-sensLen]) color("lightgrey") cylinder(h=sensLen,d=sensDia); //Sensor
@@ -135,9 +135,15 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                 translate([0,sheetWd/3,-sensLen/2-cableLen]) cube([sheetTh+fudge,electrDia+fudge,electrHg+fudge],true);//right
                 translate([0,-sheetWd/3,-sensLen/2-cableLen]) cube([sheetTh+fudge,electrDia+fudge,electrHg+fudge],true);//left
                 
-                //joinage
+                //joinage to top sheet
                 translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3); //nut
                 translate([0,(sheetWd+cableDia)/4,0]) cube([3+fudge,3+fudge,25],true);//bolt
+                
+                //nudges for holder
+                translate([(-sheetTh-fudge)/2,sheetWd/2-sheetWd/32,-sensLen/2-cableLen-(sheetTh+fudge)/2]) 
+                    cube([sheetTh+fudge,sheetWd/32+fudge,sheetTh+fudge]);//right
+                translate([(-sheetTh-fudge)/2,(-sheetWd-fudge)/2,-sensLen/2-cableLen-(sheetTh+fudge)/2]) 
+                    cube([sheetTh+fudge,sheetWd/32+fudge,sheetTh+fudge]);//right
                 
             } //difference
              %translate([0,(sheetWd+cableDia)/4,topSheetTh]) rotate([180]) boltHole(size=3,length=20);
@@ -146,6 +152,7 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
             
             //the holder
             translate ([0,0,-sensLen/2-cableLen]) 
+            union(){
                 difference(){
                     //Disc body
                     cylinder(h=sheetTh,d1=sheetWd*1.2,d2=sheetWd*1.2,center=true);
@@ -160,9 +167,32 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                     translate([0,sheetWd/3,0]) cube([sheetTh-1.2,electrDia+fudge,electrHg+fudge],true);//right
                     translate([0,-sheetWd/3,0]) cube([sheetTh-1.2,electrDia+fudge,electrHg+fudge],true);//left
                     
-                    #translate([-sheetTh/2,sheetWd/3+electrDia/2,-sheetTh]) cube([sheetTh+fudge,sheetWd/6-electrDia/2+fudge,sheetTh*2]);
-                    #translate([-sheetTh/2,-sheetWd/2-fudge,-sheetTh]) cube([sheetTh+fudge,sheetWd/6-electrDia/2+fudge,sheetTh*2]);
-                }
+                    //BodySheet
+                    translate([(-sheetTh-fudge)/2,sheetWd/3+electrDia/2,-sheetTh]) 
+                        cube([sheetTh+fudge,sheetWd/8-electrDia/2+fudge,sheetTh*2]);
+                    translate([(-sheetTh-fudge)/2,-sheetWd/3-sheetWd/8-fudge,-sheetTh])                                               
+                        cube([sheetTh+fudge,sheetWd/8-electrDia/2+fudge,sheetTh*2]);
+                    translate([(-sheetTh-fudge)/2,sensDia/2,-sheetTh]) cube([sheetTh+fudge,sheetWd/3-sensDia/2-electrDia/2,sheetTh*2]);
+                    translate([(-sheetTh-fudge)/2,-sheetWd/3+electrDia/2,-sheetTh]) cube([sheetTh+fudge,sheetWd/3-sensDia/2-electrDia/2,sheetTh*2]);
+                    
+                    //cut in half
+                    //translate([sheetWd*1.2/4,0,0])cube([sheetWd*1.2/2+fudge,sheetWd*1.2,sheetTh+fudge],true);
+                    
+                    //joinage
+                    
+                    
+                    
+                } //difference
+//                intersection() {
+//                     cylinder(h=sheetTh,d1=sheetWd*1.2,d2=sheetWd*1.2,center=true);
+//                     
+//                    rotate([0,0,-10])translate([0,sheetWd*1.2/2-sheetWd*1.2/64,0]) cylinder(h=sheetTh+fudge,d=sheetWd/8,center=true);
+//                }
+//                difference() {
+//                     cylinder(h=sheetTh,d=sheetWd*1.2,center=true);
+//                     cylinder(h=sheetTh+fudge,d=sheetWd*1.1,center=true);
+               // }
+            }//union
                 
             
             
