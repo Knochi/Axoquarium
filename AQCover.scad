@@ -11,13 +11,13 @@ innerlgth=502;
 fudge=0.1;
 
 
-*projection(true)
+*projection(true) //the temp sens
     rotate([0,90,0])
-    tempSens(100,sheetth,0.1,cutChildren=false);
+        tempSens(100,sheetth,0.1,cutChildren=false);
  
  
 //the sheet
-//projection(true)
+
     tempSens(100,sheetth,0.1,[ -116.17, 197.54, -1.5 ])
 
         difference(){
@@ -103,6 +103,9 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
     sheetWd=border*2+sensDia; //width of the sheet holding the sensor without roudness
     sheetHg=border+cableLen+sensLen; //Hight of the sheet holding the sensor without roudness
     
+    electrHg=16; //height of electrodes
+    electrDia=2; //Diameter of electrodes
+    
     translate(position) {
         //sensor + cable
         translate([0,0,-cableLen]) union() {
@@ -110,31 +113,62 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
             color("darkslategrey") translate([0,0,-fudge]) cylinder(h=cableLen+fudge*2+topSheetTh,d=cableDia); //cable
         }
         //sheet
-        translate()
-            union(){
-                translate([0,-(sheetWd+cableDia)/4,topSheetTh/2]) cube([sheetTh,6,topSheetTh+fudge],true); //tongue
-                translate([0,sheetWd/2-1.5,topSheetTh/2]) cube([sheetTh,3,topSheetTh+fudge],true); //tongue
+        union(){
+            translate([0,-(sheetWd+cableDia)/4,topSheetTh/2]) cube([sheetTh,6,topSheetTh+fudge],true); //tongue
+            translate([0,sheetWd/2-1.5,topSheetTh/2]) cube([sheetTh,3,topSheetTh+fudge],true); //tongue
                 
-                difference(){
-                    minkowski() { //roundings
-                        translate([0,0,-sheetHg/2]) 
-                            cube([sheetTh-roundness/2,sheetWd-roundness,sheetHg],true); //body
-                            rotate([0,90,0]) cylinder(h=roundness/2,d=roundness,center=true); //rounding
-                    }
-                    
-                    translate([0,0,-sensLen/2-cableLen]) cube([sheetTh+fudge,sensDia+fudge,sensLen+fudge],true); //cut for sens
-                    translate([0,0,-cableLen/2]) cube([cableDia+fudge,cableDia+fudge,cableLen+fudge+topSheetTh+roundness*2],true); //cut for cable
-                    translate([0,0,topSheetTh/2]) cube([sheetTh+fudge,sheetWd+fudge,topSheetTh],true); //cut Top
-                    
-                    //joinage
-                    translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3);
-                    translate([0,(sheetWd+cableDia)/4,0]) cube([3+fudge,3+fudge,25],true);
-                    
+            
+            difference(){
+                minkowski() { //roundings
+                    translate([0,0,-sheetHg/2]) 
+                        cube([sheetTh-roundness/2,sheetWd-roundness,sheetHg],true); //body
+                        rotate([0,90,0]) cylinder(h=roundness/2,d=roundness,center=true); //rounding
                 }
-                 %translate([0,(sheetWd+cableDia)/4,topSheetTh]) rotate([180]) boltHole(size=3,length=20);
-                 %translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3);
-            }
-        }
+                // ------ Free Cuts ------
+                
+                // Sensor + cable
+                translate([0,0,-sensLen/2-cableLen]) cube([sheetTh+fudge,sensDia+fudge,sensLen+fudge],true); //Sensor
+                translate([0,0,-cableLen/2]) cube([cableDia+fudge,cableDia+fudge,cableLen+fudge+topSheetTh+roundness*2],true); //cable
+                translate([0,0,topSheetTh/2]) cube([sheetTh+fudge,sheetWd+fudge,topSheetTh],true); //cut TopSheet
+                
+                //Conductivity Elektrodes
+                translate([0,sheetWd/3,-sensLen/2-cableLen]) cube([sheetTh+fudge,electrDia+fudge,electrHg+fudge],true);//right
+                translate([0,-sheetWd/3,-sensLen/2-cableLen]) cube([sheetTh+fudge,electrDia+fudge,electrHg+fudge],true);//left
+                
+                //joinage
+                translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3); //nut
+                translate([0,(sheetWd+cableDia)/4,0]) cube([3+fudge,3+fudge,25],true);//bolt
+                
+            } //difference
+             %translate([0,(sheetWd+cableDia)/4,topSheetTh]) rotate([180]) boltHole(size=3,length=20);
+             %translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3);
+            } //union
+            
+            //the holder
+            translate ([0,0,-sensLen/2-cableLen]) 
+                difference(){
+                    //Disc body
+                    cylinder(h=sheetTh,d1=sheetWd*1.2,d2=sheetWd*1.2,center=true);
+                    
+                    //Sensor
+                    cylinder(h=sensLen+fudge,d=sensDia+fudge,center=true);
+                    cube([sheetTh-1.2,sensDia+fudge,sensLen+fudge],true); 
+                    
+                    //Electrodes
+                    translate([0,sheetWd/3,0]) cylinder(h=electrHg+fudge,d=electrDia+fudge,center=true);//right
+                    translate([0,-sheetWd/3,0]) cylinder(h=electrHg+fudge,d=electrDia+fudge,center=true); //left
+                    translate([0,sheetWd/3,0]) cube([sheetTh-1.2,electrDia+fudge,electrHg+fudge],true);//right
+                    translate([0,-sheetWd/3,0]) cube([sheetTh-1.2,electrDia+fudge,electrHg+fudge],true);//left
+                    
+                    #translate([-sheetTh/2,sheetWd/3+electrDia/2,-sheetTh]) cube([sheetTh+fudge,sheetWd/6-electrDia/2+fudge,sheetTh*2]);
+                    #translate([-sheetTh/2,-sheetWd/2-fudge,-sheetTh]) cube([sheetTh+fudge,sheetWd/6-electrDia/2+fudge,sheetTh*2]);
+                }
+                
+            
+            
+        } //position
+        
+        
      // placeholders for drills
             if (cutChildren)    
                 difference(){
@@ -147,6 +181,8 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                         translate([0,sheetWd/2-1.5,topSheetTh/2-fudge/2]) cube([sheetTh+fudge,3+fudge,topSheetTh+fudge],true); //tongue
                     }
             }
+            
+                
                 
         
         
