@@ -94,15 +94,23 @@ module LEDMatrix(rows,cols,row_spc,col_spc,res=true){
 
 module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true) //DS18b2 wired waterproof sensor
 {   
+    //Sensor and Cable Geometry
     sensLen=50;
     sensDia=6;
     cableDia=4;
+    insulatTh=0.5; //Thickness of Insulation Tube adder to Diameter
+    insulatLnSens=17; //Height of Insulation Tube on Sensor
+    insulatLnCable=22; //Height of Insulation Tube on Cable
+    
+    //body geometry
     border=10;//border around sensor
     roundness=5;//rounding
     sheetTh=3;
     sheetWd=border*2+sensDia; //width of the sheet holding the sensor without roudness
     sheetHg=border+cableLen+sensLen; //Hight of the sheet holding the sensor without roudness
+    clipsTh=2; //thickness for clips
     
+    //electrodes
     electrHg=16; //height of electrodes
     electrDia=2; //Diameter of electrodes
     
@@ -110,6 +118,8 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
         //sensor + cable
         translate([0,0,-cableLen]) union() {
             translate([0,0,-sensLen]) color("lightgrey") cylinder(h=sensLen,d=sensDia); //Sensor
+            translate([0,0,-insulatLnSens+fudge]) color("SlateGray") cylinder(h=insulatLnSens,d=sensDia+insulatTh); //Insulate on Sens
+            translate([0,0,-fudge]) color("SlateGray") cylinder(h=insulatLnCable,d=cableDia+insulatTh); //Insulate on Cable
             color("darkslategrey") translate([0,0,-fudge]) cylinder(h=cableLen+fudge*2+topSheetTh,d=cableDia); //cable
         }
         //sheet
@@ -129,8 +139,14 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                 // Sensor + cable
                 translate([0,0,-sensLen/2-cableLen]) cube([sheetTh+fudge,sensDia+fudge,sensLen+fudge],true); //Sensor
                 translate([0,0,-cableLen/2]) cube([cableDia+fudge,cableDia+fudge,cableLen+fudge+topSheetTh+roundness*2],true); //cable
-                translate([0,0,topSheetTh/2]) cube([sheetTh+fudge,sheetWd+fudge,topSheetTh],true); //cut TopSheet
                 
+                //Insulation
+                translate([0,0,-cableLen-insulatLnSens/2+fudge]) 
+                    cube([sheetTh+fudge,sensDia+insulatTh+fudge,insulatLnSens+fudge],true); //Insulate on Sens
+                translate([0,0,-cableLen+insulatLnCable/2-fudge]) 
+                    cube([sheetTh+fudge,cableDia+insulatTh+fudge,insulatLnCable+fudge],true); //Insulate on cable
+                  
+           
                 //Conductivity Elektrodes
                 translate([0,sheetWd/3,-sensLen/2-cableLen]) cube([sheetTh+fudge,electrDia+fudge,electrHg+fudge],true);//right
                 translate([0,-sheetWd/3,-sensLen/2-cableLen]) cube([sheetTh+fudge,electrDia+fudge,electrHg+fudge],true);//left
@@ -138,12 +154,13 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                 //joinage to top sheet
                 translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3); //nut
                 translate([0,(sheetWd+cableDia)/4,0]) cube([3+fudge,3+fudge,25],true);//bolt
+                translate([0,0,topSheetTh/2]) cube([sheetTh+fudge,sheetWd+fudge,topSheetTh],true); //cut TopSheet
                 
                 //nudges for holder
-                translate([(-sheetTh-fudge)/2,sheetWd/2-sheetWd/32,-sensLen/2-cableLen-(sheetTh+fudge)/2]) 
-                    cube([sheetTh+fudge,sheetWd/32+fudge,sheetTh+fudge]);//right
+                translate([(-sheetTh-fudge)/2,sheetWd/2-clipsTh/2,-sensLen/2-cableLen-(sheetTh+fudge)/2]) 
+                    cube([sheetTh+fudge,clipsTh/2+fudge,sheetTh+fudge]);//right
                 translate([(-sheetTh-fudge)/2,(-sheetWd-fudge)/2,-sensLen/2-cableLen-(sheetTh+fudge)/2]) 
-                    cube([sheetTh+fudge,sheetWd/32+fudge,sheetTh+fudge]);//right
+                    cube([sheetTh+fudge,clipsTh/2+fudge,sheetTh+fudge]);//left
                 
             } //difference
              %translate([0,(sheetWd+cableDia)/4,topSheetTh]) rotate([180]) boltHole(size=3,length=20);
@@ -152,46 +169,41 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
             
             //the holder
             translate ([0,0,-sensLen/2-cableLen]) 
-            union(){
-                difference(){
-                    //Disc body
-                    cylinder(h=sheetTh,d1=sheetWd*1.2,d2=sheetWd*1.2,center=true);
+                union(){
+                    difference(){
+                    //holder body
+                        minkowski() {
+                            cube([sheetTh*border/3-roundness,sheetWd+6-roundness,sheetTh-roundness/2],true);
+                            cylinder(h=roundness/2,d=roundness,center=true); //rounding
+                        }
                     
-                    //Sensor
-                    cylinder(h=sensLen+fudge,d=sensDia+fudge,center=true);
-                    cube([sheetTh-1.2,sensDia+fudge,sensLen+fudge],true); 
-                    
-                    //Electrodes
-                    translate([0,sheetWd/3,0]) cylinder(h=electrHg+fudge,d=electrDia+fudge,center=true);//right
-                    translate([0,-sheetWd/3,0]) cylinder(h=electrHg+fudge,d=electrDia+fudge,center=true); //left
-                    translate([0,sheetWd/3,0]) cube([sheetTh-1.2,electrDia+fudge,electrHg+fudge],true);//right
-                    translate([0,-sheetWd/3,0]) cube([sheetTh-1.2,electrDia+fudge,electrHg+fudge],true);//left
-                    
-                    //BodySheet
-                    translate([(-sheetTh-fudge)/2,sheetWd/3+electrDia/2,-sheetTh]) 
-                        cube([sheetTh+fudge,sheetWd/8-electrDia/2+fudge,sheetTh*2]);
-                    translate([(-sheetTh-fudge)/2,-sheetWd/3-sheetWd/8-fudge,-sheetTh])                                               
-                        cube([sheetTh+fudge,sheetWd/8-electrDia/2+fudge,sheetTh*2]);
-                    translate([(-sheetTh-fudge)/2,sensDia/2,-sheetTh]) cube([sheetTh+fudge,sheetWd/3-sensDia/2-electrDia/2,sheetTh*2]);
-                    translate([(-sheetTh-fudge)/2,-sheetWd/3+electrDia/2,-sheetTh]) cube([sheetTh+fudge,sheetWd/3-sensDia/2-electrDia/2,sheetTh*2]);
-                    
-                    //cut in half
-                    //translate([sheetWd*1.2/4,0,0])cube([sheetWd*1.2/2+fudge,sheetWd*1.2,sheetTh+fudge],true);
-                    
-                    //joinage
-                    
-                    
+                        *cylinder(h=sheetTh,d1=sheetWd*1.2,d2=sheetWd*1.2,center=true);
+                        
+                        //Sensor
+                        cylinder(h=sensLen+fudge,d=sensDia+fudge,center=true);
+                        cube([sheetTh-1,sensDia+fudge,sensLen+fudge],true); //cut sharp edges
+                        
+                        //Electrodes
+                        translate([0,sheetWd/3,0]) cylinder(h=electrHg+fudge,d=electrDia+fudge,center=true);//right
+                        translate([0,-sheetWd/3,0]) cylinder(h=electrHg+fudge,d=electrDia+fudge,center=true); //left
+                        translate([0,sheetWd/3,0]) cube([sheetTh-1.2,electrDia+fudge,electrHg+fudge],true);//right
+                        translate([0,-sheetWd/3,0]) cube([sheetTh-1.2,electrDia+fudge,electrHg+fudge],true);//left
+                        
+                        //BodySheet
+                        translate([(-sheetTh-fudge)/2,sheetWd/3+electrDia/2,-sheetTh]) 
+                            cube([sheetTh+fudge,sheetWd/2-sheetWd/3-clipsTh/2-electrDia/2+fudge,sheetTh*2]);
+                        translate([(-sheetTh-fudge)/2,clipsTh/2-(sheetWd+fudge)/2,-sheetTh])                                               
+                            cube([sheetTh+fudge,sheetWd/2-sheetWd/3-clipsTh/2-electrDia/2+fudge,sheetTh*2]);
+                        translate([(-sheetTh-fudge)/2,sensDia/2,-sheetTh]) cube([sheetTh+fudge,sheetWd/3-sensDia/2-electrDia/2,sheetTh*2]);
+                        translate([(-sheetTh-fudge)/2,-sheetWd/3+electrDia/2,-sheetTh]) cube([sheetTh+fudge,sheetWd/3-sensDia/2-electrDia/2,sheetTh*2]);
+                        
+                        //cut in half
+                        //translate([sheetWd*1.2/4,0,0])cube([sheetWd*1.2/2+fudge,sheetWd*1.2,sheetTh+fudge],true);
+                        
+                        //joinage
                     
                 } //difference
-//                intersection() {
-//                     cylinder(h=sheetTh,d1=sheetWd*1.2,d2=sheetWd*1.2,center=true);
-//                     
-//                    rotate([0,0,-10])translate([0,sheetWd*1.2/2-sheetWd*1.2/64,0]) cylinder(h=sheetTh+fudge,d=sheetWd/8,center=true);
-//                }
-//                difference() {
-//                     cylinder(h=sheetTh,d=sheetWd*1.2,center=true);
-//                     cylinder(h=sheetTh+fudge,d=sheetWd*1.1,center=true);
-               // }
+//                
             }//union
                 
             
