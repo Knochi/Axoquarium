@@ -11,9 +11,10 @@ innerlgth=502;
 fudge=0.1;
 
 
-*projection(true) //the temp sens
-    rotate([0,90,0])
-        tempSens(100,sheetth,0.1,cutChildren=false);
+!projection(true) //the temp sens
+    translate([0,0,125])
+        //rotate([0,90,0])
+            tempSens(100,sheetth,0.1,cutChildren=false);
  
  
 //the sheet
@@ -121,6 +122,8 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
             translate([0,0,-insulatLnSens+fudge]) color("SlateGray") cylinder(h=insulatLnSens,d=sensDia+insulatTh); //Insulate on Sens
             translate([0,0,-fudge]) color("SlateGray") cylinder(h=insulatLnCable,d=cableDia+insulatTh); //Insulate on Cable
             color("darkslategrey") translate([0,0,-fudge]) cylinder(h=cableLen+fudge*2+topSheetTh,d=cableDia); //cable
+            color("darkslategrey") translate([0,sheetWd/3,-sensLen/2]) cylinder(h=electrHg,d=electrDia,center=true);
+            color("darkslategrey") translate([0,-sheetWd/3,-sensLen/2]) cylinder(h=electrHg,d=electrDia,center=true);
         }
         //sheet
         union(){
@@ -168,7 +171,7 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
             } //union
             
             //the holder
-            translate ([0,0,-sensLen/2-cableLen]) 
+            *translate ([0,0,-sensLen/2-cableLen]) 
                 union(){
                     difference(){
                     //holder body
