@@ -1,3 +1,5 @@
+
+
 /**************************************************************
  * Blynk is a platform with iOS and Android apps to control
  * Arduino, Raspberry Pi and the likes over the Internet.
@@ -28,6 +30,9 @@
 #define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
+//#include <ESP8266HTTPUpdateServer.h>
+//#include <ESP8266WebServer.h>
+//#include <ESP8266mDNS.h>
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -39,13 +44,26 @@ SimpleTimer timer;
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
+//const char host[]="Axoquarium";
+
+
+//ESP8266WebServer httpServer(80);
+//ESP8266HTTPUpdateServer httpUpdater;
+
+
+int fanPin = 13;
+
 void UpdateTemp()
 {
-   float temp =0;
+   float temp1 =0;
+   float temp2 =0;
+   
    sensors.requestTemperatures();
-   temp = sensors.getTempCByIndex(0);
-   Serial.print("Temperature: "); Serial.println(temp);
-   Blynk.virtualWrite(0,temp);  
+   temp1 = sensors.getTempCByIndex(0);
+   Serial.print("Temperature: "); Serial.println(temp1);
+   Blynk.virtualWrite(0,temp1);  
+   if (temp1>21.5) digitalWrite(fanPin, HIGH); //Turn on the Fan
+   if (temp1<21.0) digitalWrite(fanPin,LOW); // Turn off the Fan
    
 }
 
@@ -56,16 +74,26 @@ char auth[] = "ab2f47a18d074345aa20390d27fed878";
 
 void setup()
 {
+//  MDNS.begin(host);
+
+  //httpUpdater.setup(&httpServer);
+  //httpServer.begin();
+
+  //MDNS.addService("http","tcp",80);
+  
   Serial.begin(9600);
   Blynk.begin(auth, "LV426 Beacon", "3869935899194990");
   sensors.begin();
-  timer.setInterval(10000L, UpdateTemp);
+  timer.setInterval(60000L, UpdateTemp);
+
+ // Serial.printf("HTTPUpdateServer ready! Open http://%s.local/update in your browser\n", host);
 }
 
 void loop()
 {
   Blynk.run();
   timer.run();
+  //httpServer.handleClient();
 }
 
 
