@@ -11,7 +11,7 @@ innerlgth=502;
 fudge=0.1;
 
 
-!projection(true) //the temp sens
+*projection(true) //the temp sens
     translate([0,0,125])
         //rotate([0,90,0])
             tempSens(100,sheetth,0.1,cutChildren=false);
@@ -19,7 +19,7 @@ fudge=0.1;
  
 //the sheet
 
-    tempSens(100,sheetth,0.1,[ -116.17, 197.54, -1.5 ])
+tempSens(100,sheetth,0.1,[ -116.17, 197.54, -1.5 ])
 
         difference(){
             cube([innerwdth-2,innerlgth,sheetth],true); // Sheet Acryl
@@ -115,7 +115,7 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
     electrHg=16; //height of electrodes
     electrDia=2; //Diameter of electrodes
     
-    !translate(position) {
+    translate(position) {
         //sensor + cable
         translate([0,0,-cableLen]) union() {
             translate([0,0,-sensLen]) color("lightgrey") cylinder(h=sensLen,d=sensDia); //Sensor
