@@ -1,11 +1,11 @@
 $fn=50;
-projection(true){
+//projection(true){
     LED5();
     translate([0,10,0]) LED5730("blue");
     translate([0,20,0]) PLCC6("blue");
     translate([0,30,0]) res1210();
     translate([0,40,0]) SOT23();
-}
+//}
 
 module LED5(col="red",angle=0)
 {
@@ -47,7 +47,13 @@ module LED5730(col="red", angle=0)
     //leads
     color("grey") translate([-2.65,0,0]) cube([0.9,1.7,0.2],true);
     color("grey") translate([2.65,0,0]) cube([0.9,1.7,0.2],true);
-    color("grey") translate([0.32,0,0]) cube([2.25,1.7,0.2],true);
+   color("grey") translate([0.32,0,0]) 
+    union(){
+        cube([2.25,1.7,0.2],true);
+        cube([0.9,4.0,0.2],true);
+        translate([-0.32,-1.8,0]) cube([5.7,0.9,0.2],true);
+        translate([-0.32,1.8,0]) cube([5.7,0.9,0.2],true);
+    }
     
         
     if (angle) color(col,0.25) translate([0,0,0.2]) cylinder($fn=10,h=coneHg,r1=0,r2=coneTopRd);
