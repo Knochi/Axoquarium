@@ -5,6 +5,7 @@ $fn=50;
     translate([0,20,0]) PLCC6("blue");
     translate([0,30,0]) res1210();
     translate([0,40,0]) SOT23();
+    translate([0,50,0]) LED3528();
 //}
 
 module LED5(col="red",angle=0)
@@ -35,11 +36,13 @@ module LED5(col="red",angle=0)
     if (angle) color(col,0.25) translate([0,0,diameter]) cylinder($fn=10,h=coneHg,r1=0,r2=coneTopRd);
 }
 
-module LED5730(col="red", angle=0)
+//set cooling to 0 to render without cooling fins otherwise it's the width of each fin
+module LED5730(col="red", angle=0, cooling=4)
 {
     fudge=0.05;
     coneHg=100; //height of the light cone
     coneTopRd=tan(angle/2)*coneHg; //topradius of the cone
+    finWd=cooling;
     
     //body
     color(col) translate([0,0,0.4+fudge]) cube([5.4,3,0.8],true);
@@ -47,12 +50,13 @@ module LED5730(col="red", angle=0)
     //leads
     color("grey") translate([-2.65,0,0]) cube([0.9,1.7,0.2],true);
     color("grey") translate([2.65,0,0]) cube([0.9,1.7,0.2],true);
-   color("grey") translate([0.32,0,0]) 
-    union(){
+    color("grey") translate([0.32,0,0]) 
+    
+    if (cooling) union(){
         cube([2.25,1.7,0.2],true);
         cube([0.9,4.0,0.2],true);
-        translate([-0.32,-1.8,0]) cube([5.7,0.9,0.2],true);
-        translate([-0.32,1.8,0]) cube([5.7,0.9,0.2],true);
+        translate([-0.32,-1.3-finWd/2,0]) cube([5.7,finWd,0.2],true); //fin
+        translate([-0.32,1.3+finWd/2,0]) cube([5.7,finWd,0.2],true); //fin
     }
     
         
@@ -84,6 +88,21 @@ module res1210()
     //leads
     color("grey") translate([(2.0+0.9)/2,0,0]) cube([0.9,2.8,0.2],true);
     color("grey") translate([-(2.0+0.9)/2,0,0]) cube([0.9,2.8,0.2],true);
+    
+}
+module LED3528(col="blue",cooling=true)
+{
+    fudge=0.05;
+    
+    //body
+    color(col) translate([0,0,0.4+fudge]) cube([3.5,2.8,0.8],true);
+    
+    //leads
+    
+    difference(){
+        color("grey") cube([4.3,2.5,0.2],true);
+        translate([-0.8,0,0]) cube([0.6,2.5+fudge,0.2+fudge],true);
+    }
     
 }
 
