@@ -45,18 +45,25 @@ module LED5730(col="red", angle=0, cooling=4)
     finWd=cooling;
     
     //body
-    color(col) translate([0,0,0.4+fudge]) cube([5.4,3,0.8],true);
+    //color(col)
+        %translate([0,0,0.4+fudge]) cube([5.4,3,0.8],true);
     
     //leads
-    color("grey") translate([-2.65,0,0]) cube([0.9,1.7,0.2],true);
-    color("grey") translate([2.65,0,0]) cube([0.9,1.7,0.2],true);
+    color("grey") translate([-3,0,0]) cube([1.5,1.7,0.2],true); //bigger for hand soldering
+    color("grey") translate([3,0,0]) cube([1.5,1.7,0.2],true); //bigger for hand soldering
     color("grey") translate([0.32,0,0]) 
     
     if (cooling) union(){
         cube([2.25,1.7,0.2],true);
-        cube([0.9,4.0,0.2],true);
-        translate([-0.32,-1.3-finWd/2,0]) cube([5.7,finWd,0.2],true); //fin
-        translate([-0.32,1.3+finWd/2,0]) cube([5.7,finWd,0.2],true); //fin
+        cube([0.9,5.0,0.2],true);
+        difference(){
+            translate([-0.32,-1.3-finWd/2,0]) cube([5.7,finWd,0.2],true); //fin
+            translate([0,-1.3-0.5,0]) cube([2,1+fudge,0.2+fudge],true);
+        }
+        difference(){
+            translate([-0.32,1.3+finWd/2,0]) cube([5.7,finWd,0.2],true); //fin
+            translate([0,1.3+0.5,0]) cube([2,1+fudge,0.2+fudge],true);
+        }
     }
     
         
@@ -86,22 +93,28 @@ module res1210()
     //body
     color("black") translate([0,0,0.325]) cube([3.2,2.5,0.55],true);
     //leads
-    color("grey") translate([(2.0+0.9)/2,0,0]) cube([0.9,2.8,0.2],true);
-    color("grey") translate([-(2.0+0.9)/2,0,0]) cube([0.9,2.8,0.2],true);
+    color("grey") translate([(2.0+1.4)/2,0,0]) cube([1.4,2.8,0.2],true);
+    color("grey") translate([-(2.0+1.4)/2,0,0]) cube([1.4,2.8,0.2],true);
     
 }
-module LED3528(col="blue",cooling=true)
+module LED3528(col="blue",cooling=4)
 {
     fudge=0.05;
     
     //body
     color(col) translate([0,0,0.4+fudge]) cube([3.5,2.8,0.8],true);
     
-    //leads
-    
-    difference(){
-        color("grey") cube([4.3,2.5,0.2],true);
-        translate([-0.8,0,0]) cube([0.6,2.5+fudge,0.2+fudge],true);
+    //leads    
+    color("grey") union(){
+        if (cooling) {
+            translate([0,-(cooling+2.5+0.9)/2,0]) cube([5,cooling,0.2],true);
+            translate([0,(cooling+2.5+0.9)/2,0]) cube([5,cooling,0.2],true);
+            cube([0.9,2.5+1.2+fudge,0.2],true);
+        }
+        difference(){
+            cube([5.3,2.5,0.2],true);
+            translate([-0.8,0,0]) cube([0.6,2.5+fudge,0.2+fudge],true);
+        }
     }
     
 }
@@ -111,7 +124,12 @@ module SOT23()
     //body
     color("black") translate([0,0,0.55]) cube([1.3,2.9,1],true);
     //pads
-    color("grey") translate([-1,0,0]) cube([0.8,0.9,0.2],true);
-    color("grey") translate([1,0.95,0]) cube([0.8,0.9,0.2],true);
-    color("grey") translate([1,-0.95,0]) cube([0.8,0.9,0.2],true);
+    color("grey") translate([-1.2,0,0]) cube([1.2,0.9,0.2],true);
+    color("grey") translate([1.2,0.95,0]) cube([1.2,0.9,0.2],true);
+    color("grey") translate([1.2,-0.95,0]) cube([1.2,0.9,0.2],true);
+    
+    //label
+    translate ([-0.9,-0.3,0]) rotate([0,0,90]) text("C",0.6);
+    translate ([1.5,-1.3,0]) rotate([0,0,90]) text("E",0.6);
+    translate ([1.5,0.7,0]) rotate([0,0,90]) text("B",0.6);
 }

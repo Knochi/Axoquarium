@@ -15,8 +15,10 @@ fudge=0.1;
     translate([0,0,125])
         //rotate([0,90,0])
             tempSens(100,sheetth,0.1,cutChildren=false);
-*projection(true) LEDMatrix(12,3,12,10);
-    
+*projection(true) {
+    LEDMatrix(6,3,12,10);
+    rotate([0,0,-90]) LEDMatrix(2,3,10,24,LEDs=3528);
+}
  
 //the sheet
 
@@ -47,7 +49,7 @@ translate([0,0,fanth/2]) difference() {
 //the LEDs
 translate ([ 0, -140, sheetth/2+3 ]) rotate([0,0,180]) LEDMatrix(6,3,12,10);
 translate ([ 0, 140, sheetth/2+3 ]) LEDMatrix(6,3,12,10);
-translate ([ 0,140, sheetth/2+3]) rotate([0,0,-90]) LEDMatrix(2,3,10,24,LEDs=3528);
+translate ([ 0,140, sheetth/2+2.4]) rotate([0,0,-90]) LEDMatrix(2,3,10,24,LEDs=3528);
 
 
 
@@ -67,10 +69,12 @@ module LEDMatrix(rows,cols,row_spc,col_spc,res=true, LEDs=5730){
         for (j = [-rows/2:rows/2]) { //row  i.e. 6
             
             union(){
-                if (LEDs=5730) translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED5730("orange",0); //LEDs
-                if (LEDs=3528) translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED3528("orange",0); //LEDs
-                color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-5.7,1,0.2],true); //connection
-                
+                if (LEDs==5730){ translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED5730("orange",0); //LEDs
+                    color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-5.7,1,0.2],true); //connection
+                }
+                if (LEDs==3528){ translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED3528("orange",0); //LEDs
+                    color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-4,1,0.2],true); //connection
+                }
                 if (i==cols/2){ //only once per row
 
                     //#spaces * regular distance + reduced distances                     
@@ -83,9 +87,9 @@ module LEDMatrix(rows,cols,row_spc,col_spc,res=true, LEDs=5730){
                                                                                  //-5.7 is center, +width of comp
                         translate([(cols/2)*col_spc+3.5,j*row_spc,0])cube([2,1,0.2],true); //connection to res
                         translate([(cols/2)*col_spc+8.5,j*row_spc,0])cube([2,1,0.2],true); //connection to SOT23
-                        translate([(cols/2)*col_spc+12.75,j*row_spc+0.95,0])cube([2.5,1,0.2],true); //connection to PWM-Signal
-                        translate([(cols/2)*col_spc+13.5,j*row_spc-0.95,0])cube([4,1,0.2],true); //connection to Gnd
-                        #translate([-(cols)*col_spc+3.6,j*row_spc+row_spc/2-0.5,0])cube([2,row_spc+fudge,0.2],true); //inter-connection to Vcc
+                        translate([(cols/2)*col_spc+12.75,j*row_spc-0.95,0])cube([2.5,1,0.2],true); //connection to PWM-Signal
+                        translate([(cols/2)*col_spc+13.5,j*row_spc+0.95,0])cube([4,1,0.2],true); //connection to Gnd
+                        translate([-(cols)*col_spc+3.6,j*row_spc+row_spc/2-0.5,0])cube([2,row_spc+fudge,0.2],true); //inter-connection to Vcc
                         translate([(cols/2)*col_spc+16,j*row_spc+row_spc/2-1.4,0])cube([2,row_spc+fudge,0.2],true); //inter-connection to Gnd
                    } //color
                 
