@@ -3,9 +3,10 @@ $fn=50;
     LED5();
     translate([0,10,0]) LED5730("blue");
     translate([0,20,0]) PLCC6("blue");
-    translate([0,30,0]) res1210();
-    translate([0,40,0]) SOT23();
-    translate([0,50,0]) LED3528();
+    translate([0,30,0]) res0805();
+    translate([0,40,0]) res1210();
+    translate([0,50,0]) SOT23();
+    translate([0,60,0]) LED3528();
 //}
 
 module LED5(col="red",angle=0)
@@ -97,6 +98,17 @@ module res1210()
     color("grey") translate([-(2.0+1.4)/2,0,0]) cube([1.4,2.8,0.2],true);
     
 }
+
+module res0805()
+{
+    //body
+    color("black") translate([0,0,0.325]) cube([2,1.25,0.55],true);
+    //leads
+    color("grey") translate([(0.65+1.4)/2,0,0]) cube([1.4,1.5,0.2],true);
+    color("grey") translate([-(0.65+1.4)/2,0,0]) cube([1.4,1.5,0.2],true);
+    
+}
+
 module LED3528(col="blue",cooling=4)
 {
     fudge=0.05;

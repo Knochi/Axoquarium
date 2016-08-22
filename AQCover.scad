@@ -72,7 +72,7 @@ module LEDMatrix(rows,cols,row_spc,col_spc,res=true, LEDs=5730){
                 if (LEDs==5730){ translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED5730("orange",0); //LEDs
                     color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-5.7,1,0.2],true); //connection
                 }
-                if (LEDs==3528){ translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED3528("orange",0); //LEDs
+                if (LEDs==3528){ translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED3528("orange",4); //LEDs
                     color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-4,1,0.2],true); //connection
                 }
                 if (i==cols/2){ //only once per row
@@ -80,14 +80,19 @@ module LEDMatrix(rows,cols,row_spc,col_spc,res=true, LEDs=5730){
                     //#spaces * regular distance + reduced distances                     
                     translate([(cols/2)*col_spc+6,j*row_spc,0]) rotate([0,180,0]) res1210(); //resistor (one per row)
                     translate([(cols/2)*col_spc+10.5,j*row_spc,0]) rotate([0,180,180]) SOT23(); //transistor (one per row)
+                    translate([(cols/2)*col_spc+13.5,j*row_spc-2,0]) rotate([0,180,90]) res0805(); //Base Resistor (one per row)
                     
                     
-                    color("grey"){   
+                    color("grey"){ //traces
                         //#spaces * regular distance + reduced distances
                                                                                  //-5.7 is center, +width of comp
                         translate([(cols/2)*col_spc+3.5,j*row_spc,0])cube([2,1,0.2],true); //connection to res
                         translate([(cols/2)*col_spc+8.5,j*row_spc,0])cube([2,1,0.2],true); //connection to SOT23
-                        translate([(cols/2)*col_spc+12.75,j*row_spc-0.95,0])cube([2.5,1,0.2],true); //connection to PWM-Signal
+                        
+                        translate([(cols/2)*col_spc+12.75,j*row_spc-0.95,0])cube([2.5,1,0.2],true); //connection to Base resistor
+                        translate([(cols/2)*col_spc+12.75,j*row_spc-3.05,0])cube([2.5,1,0.2],true); //connection to PWM signal
+                        translate([(cols/2)*col_spc+10.7,j*row_spc-3.05,0])cylinder(h=0.2,r=1,center=true); //Solder Pad for PWM signal
+                        
                         translate([(cols/2)*col_spc+13.5,j*row_spc+0.95,0])cube([4,1,0.2],true); //connection to Gnd
                         translate([-(cols)*col_spc+3.6,j*row_spc+row_spc/2-0.5,0])cube([2,row_spc+fudge,0.2],true); //inter-connection to Vcc
                         translate([(cols/2)*col_spc+16,j*row_spc+row_spc/2-1.4,0])cube([2,row_spc+fudge,0.2],true); //inter-connection to Gnd
