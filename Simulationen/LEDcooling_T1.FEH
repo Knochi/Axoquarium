@@ -1,0 +1,236 @@
+[Format]      =  1
+[Precision]   =  1e-008
+[MinAngle]    =  30
+[Depth]       =  4
+[LengthUnits] =  millimeters
+[ProblemType] =  planar
+[Coordinates] =  cartesian
+[PrevSoln] = "\\vwifbof00v11.vwinf.vw.vwg\FMEC4TQ\Eigene Dateien\Konzepte\Axoquarium\Simulationen\LEDcooling_T0.anh"
+[dT] = 300
+[Comment]     =  "Add comments here."
+[PointProps]   = 0
+[BdryProps]   = 5
+  <BeginBdry>
+    <BdryName> = "CopperEmission"
+    <BdryType> = 3
+    <Tset> = 0
+    <qs>   = 0
+    <beta> = 0.78000000000000003
+    <h>    = 0
+    <Tinf> = 300
+  <EndBdry>
+  <BeginBdry>
+    <BdryName> = "FR4Flux"
+    <BdryType> = 1
+    <Tset> = 0
+    <qs>   = 0.10000000000000001
+    <beta> = 0
+    <h>    = 0
+    <Tinf> = 0
+  <EndBdry>
+  <BeginBdry>
+    <BdryName> = "T100"
+    <BdryType> = 0
+    <Tset> = 400
+    <qs>   = 0
+    <beta> = 0
+    <h>    = 0
+    <Tinf> = 0
+  <EndBdry>
+  <BeginBdry>
+    <BdryName> = "T20"
+    <BdryType> = 0
+    <Tset> = 293
+    <qs>   = 0
+    <beta> = 0
+    <h>    = 0
+    <Tinf> = 0
+  <EndBdry>
+  <BeginBdry>
+    <BdryName> = "CopperEmi+Conv"
+    <BdryType> = 1
+    <Tset> = 0
+    <qs>   = 8
+    <beta> = 0
+    <h>    = 0
+    <Tinf> = 0
+  <EndBdry>
+[BlockProps]  = 17
+  <BeginBlock>
+    <BlockName> = "Copper, Pure"
+    <Kx> = 401
+    <Ky> = 401
+    <Kt> = 3
+    <qv> = 0
+    <TKPoints> = 6
+      273	401
+      473	389
+      673	378
+      873	366
+      1073	352
+      1273	336
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "FR4"
+    <Kx> = 0.90000000000000002
+    <Ky> = 0.29999999999999999
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "Air"
+    <Kx> = 0.018100000000000002
+    <Ky> = 0.018100000000000002
+    <Kt> = 3
+    <qv> = 0
+    <TKPoints> = 18
+      200	0.018100000000000002
+      250	0.0223
+      300	0.026100000000000002
+      350	0.029700000000000001
+      400	0.033099999999999997
+      450	0.036299999999999999
+      500	0.0395
+      550	0.042599999999999999
+      600	0.045600000000000002
+      700	0.051299999999999998
+      800	0.056899999999999999
+      900	0.0625
+      1000	0.067199999999999996
+      1200	0.075899999999999995
+      1400	0.083500000000000005
+      1600	0.090399999999999994
+      1800	0.097000000000000003
+      2000	0.1032
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e1"
+    <Kx> = 2.6498996896116669
+    <Ky> = 2.6498996896116669
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e2"
+    <Kx> = 0.12953316809300527
+    <Ky> = 0.12953316809300527
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e3"
+    <Kx> = 14.398967120915913
+    <Ky> = 14.398967120915913
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e4"
+    <Kx> = 0.042882574356338271
+    <Ky> = 0.042882574356338271
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e5"
+    <Kx> = 37.197476986533054
+    <Ky> = 37.197476986533054
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e6"
+    <Kx> = 0.015664246064106369
+    <Ky> = 0.015664246064106369
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e7"
+    <Kx> = 142.03015659052124
+    <Ky> = 142.03015659052124
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e1"
+    <Kx> = 2.6498996896116669
+    <Ky> = 2.6498996896116669
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e2"
+    <Kx> = 0.12953316809300527
+    <Ky> = 0.12953316809300527
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e3"
+    <Kx> = 14.398967120915913
+    <Ky> = 14.398967120915913
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e4"
+    <Kx> = 0.042882574356338271
+    <Ky> = 0.042882574356338271
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e5"
+    <Kx> = 37.197476986533054
+    <Ky> = 37.197476986533054
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e6"
+    <Kx> = 0.015664246064106369
+    <Ky> = 0.015664246064106369
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "e7"
+    <Kx> = 142.03015659052124
+    <Ky> = 142.03015659052124
+    <Kt> = 0
+    <qv> = 0
+  <EndBlock>
+[ConductorProps]  = 1
+  <BeginConductor>
+    <ConductorName> = "LED"
+    <Tc> = 0
+    <qc> = 0.5
+    <ConductorType> = 0
+  <EndConductor>
+[NumPoints] = 8
+0	0	0	0	0
+4	0	0	0	0
+0	0.050000000000000003	0	0	0
+4	0.050000000000000003	0	0	0
+0	-1.5	0	0	0
+4	-1.5	0	0	0
+0	-1.55	0	0	0
+4	-1.55	0	0	0
+[NumSegments] = 10
+2	3	-1	5	0	0	0
+3	1	-1	5	0	0	0
+1	0	-1	0	0	0	0
+0	2	-1	5	0	0	0
+4	5	-1	0	0	0	0
+5	7	-1	0	0	0	1
+7	6	-1	0	0	0	0
+6	4	-1	5	0	0	0
+0	4	-1	0	0	0	0
+1	5	-1	0	0	0	0
+[NumArcSegments] = 0
+[NumHoles] = 0
+[NumBlockLabels] = 3
+2.0600000000000001	-0.79000000000000004	2	-1	0	0
+2.0800000000000001	-1.53	1	-1	0	0
+2.02	0.01	1	-1	0	0

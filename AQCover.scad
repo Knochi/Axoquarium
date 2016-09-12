@@ -15,14 +15,14 @@ fudge=0.1;
     translate([0,0,125])
         //rotate([0,90,0])
             tempSens(100,sheetth,0.1,cutChildren=false);
-*projection(true) {
-    LEDMatrix(6,3,12,10);
+projection(true) {
+    *LEDMatrix(6,3,12,10);
     rotate([0,0,-90]) LEDMatrix(2,3,10,24,LEDs=3528);
 }
  
 //the sheet
 
-tempSens(100,sheetth,0.1,[ -116.17, 197.54, -1.5 ])
+*tempSens(100,sheetth,0.1,[ -116.17, 197.54, -1.5 ])
 
         difference(){
             cube([innerwdth-2,innerlgth,sheetth],true); // Sheet Acryl
@@ -35,7 +35,7 @@ tempSens(100,sheetth,0.1,[ -116.17, 197.54, -1.5 ])
 
 
 // the Fan
-translate([0,0,fanth/2]) difference() {
+*translate([0,0,fanth/2]) difference() {
    color("grey") cube([119,119,32],true); // 120 fan
    cylinder(fanth+2,d=100 ,center=true); 
    4drills(104.8/2,4.3,fanth);
@@ -72,7 +72,7 @@ module LEDMatrix(rows,cols,row_spc,col_spc,res=true, LEDs=5730){
                 if (LEDs==5730){ translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED5730("orange",0); //LEDs
                     color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-5.7,1,0.2],true); //connection
                 }
-                if (LEDs==3528){ translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED3528("orange",4); //LEDs
+                if (LEDs==3528){ translate([i*col_spc,j*row_spc,0])rotate([0,180,0])LED3528("orange",3); //LEDs
                     color("grey") translate([i*col_spc-col_spc/2,j*row_spc,0])cube([col_spc-4,1,0.2],true); //connection
                 }
                 if (i==cols/2){ //only once per row
