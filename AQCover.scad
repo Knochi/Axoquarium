@@ -4,7 +4,7 @@ use <LatticeHinge.scad>
 $fn=100;
 pi = 3.14159265;
 fanTh=34;
-sheetTh=6; //thickness of the top sheet
+sheetTh=6; //thickness of the base sheet
 topHg= fanTh + 10; //Hight of the case
 topTh = 3; //thickness of Top sheet
 glasth=5; //thickness of the glass
@@ -96,8 +96,8 @@ translate([0,0,fanTh/2+sheetTh/2]) difference() {
 
 
 module sideWall(){
-    !hull(){
-        translate([innerwdth/2-sideX,-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2])
+    hull(){
+        translate([innerwdth/2-sideX-topTh,-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2])
             rotate([90,0,0]) 
                 intersection(){
                     cylinder(h=sideTh,r=sideR1,center=true);
@@ -105,7 +105,7 @@ module sideWall(){
                         cube([sideR1*2+fudge,sideR1+fudge,5],true);
                 }
                 
-        translate([-(innerwdth/2-sideR1),-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2])
+        translate([-(innerwdth/2-sideR1-topTh),-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2])
             rotate([90,0,0]) 
                 intersection(){
                     cylinder(h=sideTh,r=sideR1,center=true);
@@ -113,8 +113,8 @@ module sideWall(){
                         cube([sideR1*2+fudge,sideR1+fudge,5],true);
                 }
         
-        translate([-innerwdth/2+sideR2,-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true);
-        translate([innerwdth/2-sideR2,-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true);
+        translate([-(innerwdth/2-sideR2-topTh),-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true);
+        translate([innerwdth/2-sideR2-topTh,-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true);
         }//hull
         
 }//module
