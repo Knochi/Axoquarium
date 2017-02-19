@@ -1,57 +1,134 @@
 use <LED.scad>
 use <MCAD/nuts_and_bolts.scad>
-
-fanth=34;
-sheetth=3; //thickness of the top sheet
-glasth=5;
+use <LatticeHinge.scad>
 $fn=100;
-shimwdth=40;
-innerwdth=337;
-innerlgth=502;
+pi = 3.14159265;
+fanTh=34;
+sheetTh=6; //thickness of the base sheet
+topHg= fanTh + 10; //Hight of the case
+topTh = 3; //thickness of Top sheet
+glasth=5; //thickness of the glass
+
+// side cover
+sideTh=6; //thickness of side sheet
+sideR1=18.85; //radius of the top edge
+sideR2=1; //radius of the lower edge
+sideAlpha=45;// angle of front
+
+bendW=(sideR1+topTh/2)*(pi/180)*sideAlpha; //width of the bend including "stretched length"
+
+sideY = topHg - sideR1 - sideR2; //
+
+sideX1= sideR1/cos(sideAlpha);  //HYP=AK/cos(alpha)
+sideX2= sideR2/cos(sideAlpha);  //HYP=AK/cos(alpha)
+sideX3= tan(sideAlpha)*sideY;   //GK=tan(alpha)*AK
+sideX = sideX1 +  sideX2 + sideX3;
+
+sideA1= tan(sideAlpha)*sideR1;  //GK=tan(alpha)*AK
+sideA2= sideY/cos(sideAlpha);   //HYP=AK/cos(alpha)
+sideA3= tan(sideAlpha)*sideR2;  //GK=tan(alpha)*AK
+sideA = sideA1+sideA2+sideA3; //length of the tangent
+
+
+
+echo(sideY);
+
+// Aquarium Dimensions
+shimwdth=40; //width of the shims
+innerwdth=337; //inner width of the aquarium above the shims
+innerlgth=502; //length of the cover/shims
 fudge=0.1;
 
+echo([ 107.00, -255.92, 48.56 ]-[ 121.95, -242.14, 49.07 ]);
 
 *projection(true) //the temp sens
     translate([0,0,125])
         //rotate([0,90,0])
-            tempSens(100,sheetth,0.1,cutChildren=false);
-projection(true) {
-    *LEDMatrix(6,3,12,10);
+            tempSens(100,sheetTh,0.1,cutChildren=false);
+*projection(true) {
+    LEDMatrix(6,3,12,10);
     rotate([0,0,-90]) LEDMatrix(2,3,10,24,LEDs=3528);
 }
- 
-//the sheet
 
-*tempSens(100,sheetth,0.1,[ -116.17, 197.54, -1.5 ])
+*projection() 
+    rotate([-90,0,0]) sideWall();
+
+*projection() cover();
+ 
+//the sheet with cutout for tempSens
+tempSens(100,sheetTh,0.1,[ -116.17, 197.54, -1.5 ])
 
         difference(){
-            cube([innerwdth-2,innerlgth,sheetth],true); // Sheet Acryl
-                intersection() {
-                    cylinder(sheetth+0.1,d=125,center=true);
-                    cube([116,116,sheetth+0.1],true);
+            cube([innerwdth-2,innerlgth,sheetTh],true); // Sheet Acryl
+                intersection() { //cutout for fan
+                    cylinder(sheetTh+0.1,d=125,center=true); 
+                    cube([116,116,sheetTh+0.1],true); 
                 }
-        4drills(104.8/2,4.5,sheetth);
+        4drills(104.8/2,4.5,sheetTh);
     }
 
+//side walls
+// 4 cylinders with hull?
+
+
+color("grey") sideWall();
+   
+    
+//surface with lattice hinge
+color("lightgrey") cover();
 
 // the Fan
-*translate([0,0,fanth/2]) difference() {
-   color("grey") cube([119,119,32],true); // 120 fan
-   cylinder(fanth+2,d=100 ,center=true); 
-   4drills(104.8/2,4.3,fanth);
+translate([0,0,fanTh/2+sheetTh/2]) difference() {
+   color("grey") cube([119,119,fanTh],true); // 120 fan
+   cylinder(fanTh+2,d=100 ,center=true); 
+   4drills(104.8/2,4.3,fanTh);
     
  }
 
 // the shims
- translate([(innerwdth-shimwdth)/2,0,-(sheetth+glasth)/2]) color("LightCyan",0.5) cube([shimwdth,innerlgth,glasth],true);
- translate([-(innerwdth-shimwdth)/2,0,-(sheetth+glasth)/2]) color("LightCyan",0.5) cube([shimwdth,innerlgth,glasth],true);
+ translate([(innerwdth-shimwdth)/2,0,-(sheetTh+glasth)/2]) color("LightCyan",0.5) cube([shimwdth,innerlgth,glasth],true);
+ translate([-(innerwdth-shimwdth)/2,0,-(sheetTh+glasth)/2]) color("LightCyan",0.5) cube([shimwdth,innerlgth,glasth],true);
 
 //the LEDs
-translate ([ 0, -140, sheetth/2+3 ]) rotate([0,0,180]) LEDMatrix(6,3,12,10);
-translate ([ 0, 140, sheetth/2+3 ]) LEDMatrix(6,3,12,10);
-translate ([ 0,140, sheetth/2+2.4]) rotate([0,0,-90]) LEDMatrix(2,3,10,24,LEDs=3528);
+*translate ([ 0, -140, sheetTh/2+3 ]) rotate([0,0,180]) LEDMatrix(6,3,12,10);
+*translate ([ 0, 140, sheetTh/2+3 ]) LEDMatrix(6,3,12,10);
+*translate ([ 0,140, sheetTh/2+2.4]) rotate([0,0,-90]) LEDMatrix(2,3,10,24,LEDs=3528);
 
 
+module sideWall(){
+    hull(){
+        translate([innerwdth/2-sideX-topTh,-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2])
+            rotate([90,0,0]) 
+                intersection(){
+                    cylinder(h=sideTh,r=sideR1,center=true);
+                    translate([0,sideR1/2,0]) 
+                        cube([sideR1*2+fudge,sideR1+fudge,5],true);
+                }
+                
+        translate([-(innerwdth/2-sideR1-topTh),-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2])
+            rotate([90,0,0]) 
+                intersection(){
+                    cylinder(h=sideTh,r=sideR1,center=true);
+                    translate([0,sideR1/2,0]) 
+                        cube([sideR1*2+fudge,sideR1+fudge,5],true);
+                }
+        
+        translate([-(innerwdth/2-sideR2-topTh),-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true);
+        translate([innerwdth/2-sideR2-topTh,-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true);
+        }//hull
+        
+}//module
+
+module cover(){
+ translate([0,0,topHg+(sheetTh+topTh)/2]) {
+    //cube([innerwdth-sideX*2+bendW*2+sideA*2,innerlgth,topTh],center=true);
+    difference(){
+        translate([0,-(innerlgth-48)/2,0]) cube([innerwdth-sideX*2+bendW*2+sideA*2,48,topTh],center=true);
+        translate([innerwdth/2-sideX+bendW,-innerlgth/2,0])rotate([0,0,90]) slotter();
+        translate([-innerwdth/2+sideX,-innerlgth/2,0])rotate([0,0,90]) slotter();
+    }
+}
+}
 
 module 4drills(square,drill,depth){
      translate([square,square,0]) cylinder(depth+0.1,d=drill,center=true);
@@ -106,7 +183,7 @@ module LEDMatrix(rows,cols,row_spc,col_spc,res=true, LEDs=5730){
     
 }
 
-module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true) //DS18b2 wired waterproof sensor
+module tempSens(cableLen,topsheetTh,fudge=0.1,position=[0,0,0],cutChildren=true) //DS18b2 wired waterproof sensor
 {   
     //Sensor and Cable Geometry
     sensLen=50;
@@ -134,14 +211,14 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
             translate([0,0,-sensLen]) color("lightgrey") cylinder(h=sensLen,d=sensDia); //Sensor
             translate([0,0,-insulatLnSens+fudge]) color("SlateGray") cylinder(h=insulatLnSens,d=sensDia+insulatTh); //Insulate on Sens
             translate([0,0,-fudge]) color("SlateGray") cylinder(h=insulatLnCable,d=cableDia+insulatTh); //Insulate on Cable
-            color("darkslategrey") translate([0,0,-fudge]) cylinder(h=cableLen+fudge*2+topSheetTh,d=cableDia); //cable
+            color("darkslategrey") translate([0,0,-fudge]) cylinder(h=cableLen+fudge*2+topsheetTh,d=cableDia); //cable
             color("darkslategrey") translate([0,sheetWd/3,-sensLen/2]) cylinder(h=electrHg,d=electrDia,center=true);
             color("darkslategrey") translate([0,-sheetWd/3,-sensLen/2]) cylinder(h=electrHg,d=electrDia,center=true);
         }
         //sheet
         union(){
-            translate([0,-(sheetWd+cableDia)/4,topSheetTh/2]) cube([sheetTh,6,topSheetTh+fudge],true); //tongue
-            translate([0,sheetWd/2-1.5,topSheetTh/2]) cube([sheetTh,3,topSheetTh+fudge],true); //tongue
+            translate([0,-(sheetWd+cableDia)/4,topsheetTh/2]) cube([sheetTh,6,topsheetTh+fudge],true); //tongue
+            translate([0,sheetWd/2-1.5,topsheetTh/2]) cube([sheetTh,3,topsheetTh+fudge],true); //tongue
                 
             
             difference(){
@@ -154,7 +231,7 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                 
                 // Sensor + cable
                 translate([0,0,-sensLen/2-cableLen]) cube([sheetTh+fudge,sensDia+fudge,sensLen+fudge],true); //Sensor
-                translate([0,0,-cableLen/2]) cube([cableDia+fudge,cableDia+fudge,cableLen+fudge+topSheetTh+roundness*2],true); //cable
+                translate([0,0,-cableLen/2]) cube([cableDia+fudge,cableDia+fudge,cableLen+fudge+topsheetTh+roundness*2],true); //cable
                 
                 //Insulation
                 translate([0,0,-cableLen-insulatLnSens/2+fudge]) 
@@ -170,7 +247,7 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                 //joinage to top sheet
                 translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3); //nut
                 translate([0,(sheetWd+cableDia)/4,0]) cube([3+fudge,3+fudge,25],true);//bolt
-                translate([0,0,topSheetTh/2]) cube([sheetTh+fudge,sheetWd+fudge,topSheetTh],true); //cut TopSheet
+                translate([0,0,topsheetTh/2]) cube([sheetTh+fudge,sheetWd+fudge,topsheetTh],true); //cut TopSheet
                 
                 //nudges for holder
                 translate([(-sheetTh-fudge)/2,sheetWd/2-clipsTh/2,-sensLen/2-cableLen-(sheetTh+fudge)/2]) 
@@ -179,7 +256,7 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                     cube([sheetTh+fudge,clipsTh/2+fudge,sheetTh+fudge]);//left
                 
             } //difference
-             %translate([0,(sheetWd+cableDia)/4,topSheetTh]) rotate([180]) boltHole(size=3,length=20);
+             %translate([0,(sheetWd+cableDia)/4,topsheetTh]) rotate([180]) boltHole(size=3,length=20);
              %translate([0,(sheetWd+cableDia)/4,-10]) nutHole(3);
             } //union
             
@@ -232,11 +309,11 @@ module tempSens(cableLen,topSheetTh,fudge=0.1,position=[0,0,0],cutChildren=true)
                 difference(){
                     children(0);
                     translate(position) {
-                        translate([0,0,-fudge/2]) cylinder(h=topSheetTh+fudge,d=cableDia+fudge); //drill for cable                    
-                        translate([0,(sheetWd+cableDia)/4,-fudge/2]) cylinder(h=topSheetTh+fudge,d=3+fudge); //drill for bolt
+                        translate([0,0,-fudge/2]) cylinder(h=topsheetTh+fudge,d=cableDia+fudge); //drill for cable                    
+                        translate([0,(sheetWd+cableDia)/4,-fudge/2]) cylinder(h=topsheetTh+fudge,d=3+fudge); //drill for bolt
                         //groove
-                        translate([0,-(sheetWd+cableDia)/4,topSheetTh/2-fudge/2]) cube([sheetTh+fudge,6+fudge,topSheetTh+fudge],true);
-                        translate([0,sheetWd/2-1.5,topSheetTh/2-fudge/2]) cube([sheetTh+fudge,3+fudge,topSheetTh+fudge],true); //tongue
+                        translate([0,-(sheetWd+cableDia)/4,topsheetTh/2-fudge/2]) cube([sheetTh+fudge,6+fudge,topsheetTh+fudge],true);
+                        translate([0,sheetWd/2-1.5,topsheetTh/2-fudge/2]) cube([sheetTh+fudge,3+fudge,topsheetTh+fudge],true); //tongue
                     }
             }
             
