@@ -1,0 +1,8 @@
+Reference, Value, Footprint, Datasheet
+D3,ESS-5730WWDT-R80-WR,myfootprint:LED-5730,
+R2,20,Resistors_SMD:R_1210,
+R1,10k,Resistors_SMD:R_0805,
+Q1,BC817-40,TO_SOT_Packages_SMD:SOT-23,
+D2,ESS-5730WWDT-R80-WR,myfootprint:LED-5730,
+D1,ESS-5730WWDT-R80-WR,myfootprint:LED-5730,
+P1,CONN_01X07,Socket_Strips:Socket_Strip_Straight_1x07,

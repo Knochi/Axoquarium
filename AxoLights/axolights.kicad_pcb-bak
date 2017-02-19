@@ -1400,7 +1400,7 @@
   )
 
   (module TO_SOT_Packages_SMD:SOT-23 (layer F.Cu) (tedit 5883B105) (tstamp 58A972AB)
-    (at 186 57.5 180)
+    (at 164.95 112.3 180)
     (descr "SOT-23, Standard")
     (tags SOT-23)
     (path /58A96E93/58A9723E)
@@ -1438,7 +1438,7 @@
   )
 
   (module TO_SOT_Packages_SMD:SOT-23 (layer F.Cu) (tedit 5883B105) (tstamp 58A972BF)
-    (at 186 70 180)
+    (at 165.4 120.4 180)
     (descr "SOT-23, Standard")
     (tags SOT-23)
     (path /58A96E93/58A97247)
@@ -1476,7 +1476,7 @@
   )
 
   (module Resistors_SMD:R_0603 (layer F.Cu) (tedit 58307A47) (tstamp 58A972CF)
-    (at 189.5 57.5 270)
+    (at 168.15 112.2 270)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
     (path /58A96E93/58A97239)
@@ -1509,7 +1509,7 @@
   )
 
   (module Resistors_SMD:R_1210 (layer F.Cu) (tedit 58307C54) (tstamp 58A972DF)
-    (at 123 57.5)
+    (at 140.95 112.1)
     (descr "Resistor SMD 1210, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 1210")
     (path /58A96E93/58A97238)
@@ -1542,7 +1542,7 @@
   )
 
   (module Resistors_SMD:R_0603 (layer F.Cu) (tedit 58307A47) (tstamp 58A972EF)
-    (at 189 70 270)
+    (at 169.4 120.5 270)
     (descr "Resistor SMD 0603, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 0603")
     (path /58A96E93/58A97242)
@@ -1575,7 +1575,7 @@
   )
 
   (module Resistors_SMD:R_1210 (layer F.Cu) (tedit 58307C54) (tstamp 58A972FF)
-    (at 123 70.5)
+    (at 141.1 120.3)
     (descr "Resistor SMD 1210, reflow soldering, Vishay (see dcrcw.pdf)")
     (tags "resistor 1210")
     (path /58A96E93/58A97241)
@@ -1608,7 +1608,7 @@
   )
 
   (module myfootprint:LED-3528 (layer F.Cu) (tedit 58A8C829) (tstamp 58A9753E)
-    (at 135.5 57.5 180)
+    (at 146.75 112.3 180)
     (path /58A96E93/58AA4FCD)
     (fp_text reference D19 (at -0.45 2.45 180) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1629,7 +1629,7 @@
   )
 
   (module myfootprint:LED-3528 (layer F.Cu) (tedit 58A8C829) (tstamp 58A97549)
-    (at 155 57.5 180)
+    (at 152.6 112.25 180)
     (path /58A96E93/58AA5288)
     (fp_text reference D20 (at -0.45 2.45 180) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1650,7 +1650,7 @@
   )
 
   (module myfootprint:LED-3528 (layer F.Cu) (tedit 58A8C829) (tstamp 58A97554)
-    (at 176 57.5 180)
+    (at 159.6 112.3 180)
     (path /58A96E93/58AA5335)
     (fp_text reference D21 (at -0.45 2.45 180) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1671,7 +1671,7 @@
   )
 
   (module myfootprint:LED-3528 (layer F.Cu) (tedit 58A8C829) (tstamp 58A9755F)
-    (at 135.5 70)
+    (at 148.4 120.4)
     (path /58A96E93/58A97246)
     (fp_text reference D22 (at -0.45 2.45) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1692,7 +1692,7 @@
   )
 
   (module myfootprint:LED-3528 (layer F.Cu) (tedit 58A8C829) (tstamp 58A9756A)
-    (at 155.5 70)
+    (at 154.2 120.4)
     (path /58A96E93/58A97245)
     (fp_text reference D23 (at -0.45 2.45) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1713,7 +1713,7 @@
   )
 
   (module myfootprint:LED-3528 (layer F.Cu) (tedit 58A8C829) (tstamp 58A97575)
-    (at 176 70)
+    (at 159.6 120.3)
     (path /58A96E93/58A97240)
     (fp_text reference D24 (at -0.45 2.45) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
