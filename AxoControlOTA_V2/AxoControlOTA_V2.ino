@@ -37,6 +37,8 @@ const char* password = "3869935899194990";
 char auth[] = "ab2f47a18d074345aa20390d27fed878"; //Auth Token for Blynk
 bool isFirstConnect = true;
 
+int numberOfDevices = 0;
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Booting");
@@ -60,9 +62,12 @@ void setup() {
 
   ArduinoOTA.onStart([]() {
     Serial.println("Start OTA");
+    Blynk.disconnect(); //disconect fro cloud
+    Serial.println("BLYNK disconect");
   });
   ArduinoOTA.onEnd([]() {
     Serial.println("\nEnd");
+    Blynk.connect();
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
     Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
@@ -82,8 +87,13 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   dht.begin(); //start DHT
-  sensors.begin(); //start Onw Wire Temperature
+  sensors.begin(); //start One Wire Temperature
   timer.setInterval(60000L, UpdateTemp); //start simple timer with one minute intervall
+
+  numberOfDevices = sensors.getDeviceCount();
+  Serial.print("Found ");
+  Serial.print(numberOfDevices, DEC);
+  Serial.print(" OneWire Devices");
 }
 
 //Function to read Temperature and control Fan
@@ -92,9 +102,15 @@ void UpdateTemp()
    float temp1 =0;
    float temp2 =0;
    float hum1 = 0;
+
+   if (numberOfDevices) {
+     sensors.requestTemperatures();
+     temp1 = sensors.getTempCByIndex(0);
+   }
+   else {
+     temp1 = -127;
+   }
    
-   sensors.requestTemperatures();
-   temp1 = sensors.getTempCByIndex(0);
    temp2 = dht.readTemperature();
    hum1 = dht.readHumidity();
    if (isnan(hum1) || isnan(temp2)) {
