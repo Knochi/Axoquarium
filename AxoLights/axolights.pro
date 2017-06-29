@@ -1,8 +1,6 @@
-<<<<<<< HEAD
+
 update=03.03.2017 11:38:01
-=======
-update=19.06.2017 14:45:31
->>>>>>> origin/master
+
 version=1
 last_client=kicad
 [pcbnew]
