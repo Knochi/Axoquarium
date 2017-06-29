@@ -8,6 +8,9 @@
 #define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
 #include <BlynkSimpleEsp8266.h>
 
+//Sensors
+
+
 // DHT Sensor
 #include "DHT.h"
 
@@ -19,15 +22,17 @@
 #include <SimpleTimer.h>
 SimpleTimer timer;
 
-#define ONE_WIRE_BUS D3
+#define ONE_WIRE_BUS D4
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 
-#define DHTPIN D4 //this differs fromn board labeling ?
+//#define DHTPIN D2
 #define DHTTYPE DHT11
 
+#ifdef DHTPIN
 DHT dht(DHTPIN, DHTTYPE);
+#endif
 
 #define FANSENS D1
 #define FANCNT  D2
@@ -38,6 +43,7 @@ char auth[] = "ab2f47a18d074345aa20390d27fed878"; //Auth Token for Blynk
 bool isFirstConnect = true;
 
 int numberOfDevices = 0;
+float maxWaterTemp = 25.0; //maximum allowed Water Temperature
 
 void setup() {
   Serial.begin(115200);
@@ -52,18 +58,18 @@ void setup() {
   }
 
   // Port defaults to 8266
-  // ArduinoOTA.setPort(8266);
+   ArduinoOTA.setPort(8266);
 
   // Hostname defaults to esp8266-[ChipID]
-  // ArduinoOTA.setHostname("myesp8266");
+   ArduinoOTA.setHostname("Axoquarium");
 
   // No authentication by default
   // ArduinoOTA.setPassword((const char *)"123");
 
   ArduinoOTA.onStart([]() {
     Serial.println("Start OTA");
-    Blynk.disconnect(); //disconect fro cloud
-    Serial.println("BLYNK disconect");
+    Blynk.disconnect(); //disconnect fro cloud
+    Serial.println("BLYNK disconnect");
   });
   ArduinoOTA.onEnd([]() {
     Serial.println("\nEnd");
@@ -85,15 +91,17 @@ void setup() {
   Serial.println("Ready");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-
+  
+  #ifdef DHTPIN
   dht.begin(); //start DHT
+  #endif
   sensors.begin(); //start One Wire Temperature
   timer.setInterval(60000L, UpdateTemp); //start simple timer with one minute intervall
 
   numberOfDevices = sensors.getDeviceCount();
   Serial.print("Found ");
   Serial.print(numberOfDevices, DEC);
-  Serial.print(" OneWire Devices");
+  Serial.println(" OneWire Devices");
 }
 
 //Function to read Temperature and control Fan
@@ -110,30 +118,38 @@ void UpdateTemp()
    else {
      temp1 = -127;
    }
-   
+   #ifdef DHTPIN
    temp2 = dht.readTemperature();
    hum1 = dht.readHumidity();
+   
    if (isnan(hum1) || isnan(temp2)) {
     Serial.println("Failed to read from DHT Sensor");
     return;
    }
+   #endif
    
    Serial.print("Water Temperature: "); Serial.println(temp1);
    Blynk.virtualWrite(0,temp1);  
+   
+   #ifdef DHTPIN
    Blynk.virtualWrite(1,temp2);
    Blynk.virtualWrite(2,hum1);
    
-   //rebuild for 4pin Fan
-   //if (temp1>21.5) digitalWrite(fanPin, HIGH); //Turn on the Fan
-   //if (temp1<21.0) digitalWrite(fanPin,LOW); // Turn off the Fan
-  
   Serial.print("Ambient Humidity: ");
   Serial.print(hum1);
   Serial.println("%");
   Serial.print("Ambient Temperature: ");
   Serial.print(temp2);
   Serial.println("C");
-
+  #endif
+  
+  if (temp1>maxWaterTemp) {
+	Blynk.notify("Achtung! Wassertemperatur zu hoch");
+	
+  }
+   //rebuild for 4pin Fan
+   //if (temp1>21.5) digitalWrite(fanPin, HIGH); //Turn on the Fan
+   //if (temp1<21.0) digitalWrite(fanPin,LOW); // Turn off the Fan
   
 }
 
@@ -153,9 +169,12 @@ BLYNK_CONNECTED() {
 
     // You can also update individual virtual pins like this:
     //Blynk.syncVirtual(V0, V1, V4);
-
+	Blynk.virtualWrite(V1, maxWaterTemp);
     isFirstConnect = false;
   }
 }
 
+BLYNK_WRITE(V1) {
+	maxWaterTemp = param.asFloat();
+}
 
