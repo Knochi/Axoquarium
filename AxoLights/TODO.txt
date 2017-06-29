@@ -1,0 +1,15 @@
+- Löcher auf 3.1mm
+- Heatsink für Rv rt/bl
+- Q7/Q8 ausrichten
+- Stecker auf 5pol + 3pol aufteilen
+	Reichelt:
+	JST EH5P ST90 	- 0,22€
+	JST EH3P ST90 	- 0,17€
+	JST EH5P BU   	- 0,09€
+	JST EH3P BU		- 0,07€
+	JST EH CKS		- 0,03€
+-- V2 --
+
+- LIN Interface
+- Temperatursensor
+

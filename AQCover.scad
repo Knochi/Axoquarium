@@ -1,65 +1,74 @@
 use <LED.scad>
 use <MCAD/nuts_and_bolts.scad>
-use <LatticeHinge.scad>
+//use <LatticeHinge.scad>
+use <slotter.scad>
 $fn=100;
 pi = 3.14159265;
 fanTh=34;
 sheetTh=6; //thickness of the base sheet
-topHg= fanTh + 10; //Hight of the case
+topHg= 66;//fanTh + 10; //Hight of the case
 topTh = 3; //thickness of Top sheet
 glasth=5; //thickness of the glass
 
 // side cover
 sideTh=6; //thickness of side sheet
 sideR1=18.85; //radius of the top edge
-sideR2=1; //radius of the lower edge
-sideAlpha=45;// angle of front
+sideR2=3; //radius of the lower edge
+sideAlpha=40;// angle of front
 
-bendW=(sideR1+topTh/2)*(pi/180)*sideAlpha; //width of the bend including "stretched length"
+bendWr=(sideR1+topTh/2)*(pi/180)*sideAlpha; //width of the bend including "stretched length"
+bendWl=(sideR1+topTh/2)*(pi/180)* 90; //back side has 90 degrees //CHECK!
 
-sideY = topHg - sideR1 - sideR2; //
+sideY = topHg - sideR1 - sideR2; //translation in Y between R1 and R2
 
-sideX1= sideR1/cos(sideAlpha);  //HYP=AK/cos(alpha)
-sideX2= sideR2/cos(sideAlpha);  //HYP=AK/cos(alpha)
-sideX3= tan(sideAlpha)*sideY;   //GK=tan(alpha)*AK
-sideX = sideX1 +  sideX2 + sideX3;
+// 2 radius geometry
 
-sideA1= tan(sideAlpha)*sideR1;  //GK=tan(alpha)*AK
-sideA2= sideY/cos(sideAlpha);   //HYP=AK/cos(alpha)
-sideA3= tan(sideAlpha)*sideR2;  //GK=tan(alpha)*AK
-sideA = sideA1+sideA2+sideA3; //length of the tangent
+sideX1b= (sideR1-sideR2)/sin(sideAlpha); 
+sideX2b= sideY / tan(sideAlpha);  
+sideX3= sideR2/cos(sideAlpha); //length from center of R2 to tangent
+sideX4= sideR2/tan(sideAlpha);
 
+sideX = sideX1b +  sideX2b; //+ sideX3; //translation in X between R1 and R2 CHECK!
 
+sideA1b= (sideR1-sideR2) / tan(sideAlpha);  //CHECK!
+sideA2b= sideY/sin(sideAlpha); //CHECK!
+sideA3= sideR2 / tan(sideAlpha); //CHECK!
+sideA4= sideR2/sin(sideAlpha); //CHECK!
 
-echo(sideY);
+sideA = (sideA1b+sideA2b) + (sideA3 + sideA4); //length of the tangent + length to the ground //CHECK!
+
+echo("X Translation:",sideX);
+echo("Y Translation:",sideY);
 
 // Aquarium Dimensions
 shimwdth=40; //width of the shims
-innerwdth=337; //inner width of the aquarium above the shims
+innerWdth=337; //inner width of the aquarium above the shims
 innerlgth=502; //length of the cover/shims
 fudge=0.1;
 
-echo([ 107.00, -255.92, 48.56 ]-[ 121.95, -242.14, 49.07 ]);
 
 *projection(true) //the temp sens
     translate([0,0,125])
         //rotate([0,90,0])
             tempSens(100,sheetTh,0.1,cutChildren=false);
+
+// LED Matrix
 *projection(true) {
     LEDMatrix(6,3,12,10);
     rotate([0,0,-90]) LEDMatrix(2,3,10,24,LEDs=3528);
 }
 
+// Sidewall
 *projection() 
     rotate([-90,0,0]) sideWall();
 
-*projection() cover();
+!projection() cover();
  
 //the sheet with cutout for tempSens
 tempSens(100,sheetTh,0.1,[ -116.17, 197.54, -1.5 ])
 
         difference(){
-            cube([innerwdth-2,innerlgth,sheetTh],true); // Sheet Acryl
+            cube([innerWdth-2,innerlgth,sheetTh],true); // Sheet Acryl
                 intersection() { //cutout for fan
                     cylinder(sheetTh+0.1,d=125,center=true); 
                     cube([116,116,sheetTh+0.1],true); 
@@ -68,7 +77,7 @@ tempSens(100,sheetTh,0.1,[ -116.17, 197.54, -1.5 ])
     }
 
 //side walls
-// 4 cylinders with hull?
+// 4 cylinders with hull!
 
 
 color("grey") sideWall();
@@ -86,8 +95,8 @@ translate([0,0,fanTh/2+sheetTh/2]) difference() {
  }
 
 // the shims
- translate([(innerwdth-shimwdth)/2,0,-(sheetTh+glasth)/2]) color("LightCyan",0.5) cube([shimwdth,innerlgth,glasth],true);
- translate([-(innerwdth-shimwdth)/2,0,-(sheetTh+glasth)/2]) color("LightCyan",0.5) cube([shimwdth,innerlgth,glasth],true);
+ translate([(innerWdth-shimwdth)/2,0,-(sheetTh+glasth)/2]) color("LightCyan",0.5) cube([shimwdth,innerlgth,glasth],true);
+ translate([-(innerWdth-shimwdth)/2,0,-(sheetTh+glasth)/2]) color("LightCyan",0.5) cube([shimwdth,innerlgth,glasth],true);
 
 //the LEDs
 *translate ([ 0, -140, sheetTh/2+3 ]) rotate([0,0,180]) LEDMatrix(6,3,12,10);
@@ -97,35 +106,54 @@ translate([0,0,fanTh/2+sheetTh/2]) difference() {
 
 module sideWall(){
     hull(){
-        translate([innerwdth/2-sideX-topTh,-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2])
+        translate([innerWdth/2-sideX-(sideX3+sideX4)-topTh,-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2]) //R1 right
             rotate([90,0,0]) 
-                intersection(){
+                //intersection(){
                     cylinder(h=sideTh,r=sideR1,center=true);
-                    translate([0,sideR1/2,0]) 
-                        cube([sideR1*2+fudge,sideR1+fudge,5],true);
-                }
+                  //  translate([0,sideR1/2,0]) 
+                    //    cube([sideR1*2+fudge,sideR1+fudge,5],true);
+                //}
                 
-        translate([-(innerwdth/2-sideR1-topTh),-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2])
+        translate([-(innerWdth/2-sideR1-topTh),-innerlgth/2+sideTh/2,sheetTh/2+sideY+sideR2]) //R1 left
             rotate([90,0,0]) 
-                intersection(){
+                //intersection(){
                     cylinder(h=sideTh,r=sideR1,center=true);
-                    translate([0,sideR1/2,0]) 
-                        cube([sideR1*2+fudge,sideR1+fudge,5],true);
-                }
-        
-        translate([-(innerwdth/2-sideR2-topTh),-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true);
-        translate([innerwdth/2-sideR2-topTh,-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true);
+                  //  translate([0,sideR1/2,0]) 
+                    //    cube([sideR1*2+fudge,sideR1+fudge,5],true);
+                //}
+        // small, bottom circles
+        translate([-(innerWdth/2-sideR2-topTh),-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true); //R2 left
+        translate([innerWdth/2-(sideX3+sideX4)-topTh,-innerlgth/2+sideTh/2,sheetTh/2+sideR2]) rotate([90,0,0]) cylinder(h=sideTh,r=sideR2,center=true); //R2 right
         }//hull
         
 }//module
 
 module cover(){
- translate([0,0,topHg+(sheetTh+topTh)/2]) {
-    //cube([innerwdth-sideX*2+bendW*2+sideA*2,innerlgth,topTh],center=true);
+    //straight middle part
+                       
+    flatPart_mm = innerWdth-sideX-sideX3-sideX4 -sideR1- 2*topTh; //CHECK!
+    //                   | left side    |      right side           | 
+    bendings_mm =             bendWl    +   bendWr; //CHECK
+    sides_mm =            sideY+sideR2  +   sideA; //CHECK
+   
+    
+    
+    echo("flatPart",flatPart_mm);
+    echo("sideA",sideA);
+    echo("bendWl,bendwr",bendWl,bendWr);
+    echo("left side:",sideY+sideR2);
+    coverLength = flatPart_mm + bendings_mm + sides_mm; //CHECK
+    echo("Cover length:", coverLength);
+    //        to the bgn of the flat part - bendwidth - side
+    Xtrans = -innerWdth/2 + topTh + sideR1 - bendWl - (sideY+sideR2); //tbverified
+    
+ translate([Xtrans,0,topHg+(sheetTh)/2]) {
+    //cube([innerWdth-sideX*2+bendW*2+sideA*2,innerlgth,topTh],center=true);
     difference(){
-        translate([0,-(innerlgth-48)/2,0]) cube([innerwdth-sideX*2+bendW*2+sideA*2,48,topTh],center=true);
-        translate([innerwdth/2-sideX+bendW,-innerlgth/2,0])rotate([0,0,90]) slotter();
-        translate([-innerwdth/2+sideX,-innerlgth/2,0])rotate([0,0,90]) slotter();
+        translate([0,-innerlgth/2,0]) cube([coverLength,48,topTh]);
+        
+        translate([coverLength-sideA-(bendWr)/2,-innerlgth/2+24,topTh/2])rotate([0,0,90]) slotter(bendWr,48,1,3,1.5,1.5); //right(front) slots
+        translate([sideY+sideR2+bendWl/2,-innerlgth/2+24,topTh/2])rotate([0,0,90]) slotter(bendWl,48,1,3,1.5,1.5); //left(back) slots
     }
 }
 }
