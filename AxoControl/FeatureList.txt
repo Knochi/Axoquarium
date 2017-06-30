@@ -1,7 +1,7 @@
 Must-Have
 -----------
 - ESP8266
-- 3.3V Power, DCDC?
+- 3.3V Power, DCDC --> LM25011 (Reichelt: RD REG 5)
 - 4pin Fan 
 - PWM LED Control
 - Water conductivity meter
