@@ -1,0 +1,21 @@
+Must-Have
+-----------
+- ESP8266
+- 3.3V Power, DCDC?
+- 4pin Fan 
+- PWM LED Control
+- Water conductivity meter
+- OneWire Interface(s)
+- Grove Connector
+- Ambient Temperature Sensor
+- Ambient Light Sensor
+
+Nice-To-Have
+------------
+- intgr. Netzteil
+- LIN Master
+- Display
+- Buttons, Encoder
+- DC Fault report (backup battery)
+- Ambient Humidity
+- Solid State Relay for external loads (Euro Jack)
