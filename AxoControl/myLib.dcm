@@ -1,0 +1,7 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP LM25011
+D 42V 2A Constant On-Time Switching Regulator with Current Limit
+$ENDCMP
+#
+#End Doc Library

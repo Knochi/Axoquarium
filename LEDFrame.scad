@@ -14,7 +14,7 @@ drillX = 92;
 drillY = 42;
 drill  = 2.4;
 
-!projection()
+//!projection()
 difference(){
         minkowski(){
             cube([100-edgeRad*2,50-edgeRad*2,sheetTh-1],true);
@@ -26,7 +26,9 @@ difference(){
         translate([drillX/2,-drillY/2,0]) cylinder(h=sheetTh+fudge,d=3,center=true);
         translate([-drillX/2,-drillY/2,0]) cylinder(h=sheetTh+fudge,d=3,center=true);
         //components
-        cube([75,46,sheetTh+fudge],true);
-        translate([-43,0,0]) #cube([7,32,sheetTh+fudge],true);
-        translate([43,0,0]) #cube([7,32,sheetTh+fudge],true);
+        cube([22,46,sheetTh+fudge],true);
+        translate([-24,0,0])    cube([22,46,sheetTh+fudge],true);
+        translate([24,0,0])     cube([22,46,sheetTh+fudge],true);
+        translate([-43,0,0])    cube([8,34,sheetTh+fudge],true);
+        translate([43,0,0])     cube([8,34,sheetTh+fudge],true);
     }

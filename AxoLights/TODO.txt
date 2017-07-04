@@ -8,6 +8,9 @@
 	JST EH5P BU   	- 0,09€
 	JST EH3P BU		- 0,07€
 	JST EH CKS		- 0,03€
+- Breite von GND und VDD maximieren
+- Bef. Löcher für U-Profil 12x10x1.5mm	
+	
 -- V2 --
 
 - LIN Interface

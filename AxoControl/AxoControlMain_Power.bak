@@ -1,0 +1,125 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:ESP8266
+LIBS:myLib
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 2 2
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L LM25011 U?
+U 1 1 595B87F4
+P 5750 3400
+F 0 "U?" H 5800 3050 60  0000 C CNN
+F 1 "LM25011" H 5775 4025 60  0000 C CNN
+F 2 "" H 5750 3400 60  0000 C CNN
+F 3 "" H 5750 3400 60  0000 C CNN
+	1    5750 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L C_Small C?
+U 1 1 595B885B
+P 4600 3100
+F 0 "C?" H 4610 3170 50  0000 L CNN
+F 1 "C_Small" H 4610 3020 50  0000 L CNN
+F 2 "" H 4600 3100 50  0000 C CNN
+F 3 "" H 4600 3100 50  0000 C CNN
+	1    4600 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L C_Small C?
+U 1 1 595B890C
+P 6700 3100
+F 0 "C?" H 6710 3170 50  0000 L CNN
+F 1 "C_Small" H 6710 3020 50  0000 L CNN
+F 2 "" H 6700 3100 50  0000 C CNN
+F 3 "" H 6700 3100 50  0000 C CNN
+	1    6700 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L C_Small C?
+U 1 1 595B8957
+P 7600 3300
+F 0 "C?" H 7610 3370 50  0000 L CNN
+F 1 "C_Small" H 7610 3220 50  0000 L CNN
+F 2 "" H 7600 3300 50  0000 C CNN
+F 3 "" H 7600 3300 50  0000 C CNN
+	1    7600 3300
+	1    0    0    -1  
+$EndComp
+$Comp
+L C_Small C?
+U 1 1 595B89DF
+P 4700 3550
+F 0 "C?" H 4710 3620 50  0000 L CNN
+F 1 "C_Small" H 4710 3470 50  0000 L CNN
+F 2 "" H 4700 3550 50  0000 C CNN
+F 3 "" H 4700 3550 50  0000 C CNN
+	1    4700 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L INDUCTOR_SMALL L?
+U 1 1 595B8A09
+P 7250 3000
+F 0 "L?" H 7250 3100 50  0000 C CNN
+F 1 "15uH" H 7250 2950 50  0000 C CNN
+F 2 "" H 7250 3000 50  0000 C CNN
+F 3 "" H 7250 3000 50  0000 C CNN
+F 4 "L-1616FPS 15µ" H 7250 3000 60  0001 C CNN "Reichelt"
+	1    7250 3000
+	1    0    0    -1  
+$EndComp
+$Comp
+L D_Schottky_Small D?
+U 1 1 595B8BAB
+P 6950 3300
+F 0 "D?" V 6900 3400 50  0000 L CNN
+F 1 "D_Schottky_Small" V 7000 3400 50  0000 L CNN
+F 2 "" V 6950 3300 50  0000 C CNN
+F 3 "" V 6950 3300 50  0000 C CNN
+	1    6950 3300
+	0    1    1    0   
+$EndComp
+$EndSCHEMATC
