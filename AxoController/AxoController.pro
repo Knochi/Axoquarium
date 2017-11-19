@@ -1,4 +1,4 @@
-update=29.06.2017 18:53:19
+update=08.10.2017 16:36:46
 version=1
 last_client=kicad
 [pcbnew]
@@ -59,3 +59,4 @@ LibName27=atmel
 LibName28=contrib
 LibName29=valves
 LibName30=kicad-ESP8266/ESP8266
+LibName31=ESP32-footprints-Shem-Lib
