@@ -76,6 +76,7 @@ long stopTime_s= 0;
 time_t stopTime_t;
 bool newSSTime = false;
 bool timedOn= false;
+bool timedOff= false;
 bool isSynced = false;
 byte dbgLvl = 1;
 
@@ -258,13 +259,13 @@ void loop() {
   if (newSSTime && dbgLvl) {
     now_s = hour() *60 *60 + minute() *60 + second();
     String currentTime = String(hour()) + ":" + minute() + ":" + second();
-    terminal.print(F("Start Time is set to: "));
+    tagPrint(F("Start Time is set to: "));
     terminal.println(startTime_s);
-    terminal.print(F("Stop Time is set to: "));
+    tagPrint(F("Stop Time is set to: "));
     terminal.println(stopTime_s);
-    if (timeStatus()<2) terminal.println("Time is not in sync!");
+    if (timeStatus()<2) tagPrintln("Time is not in sync!");
     else {
-      terminal.print("RTC Time is: ");  
+      tagPrint("RTC Time is: ");  
       terminal.println(currentTime);
       terminal.print("Seconds of Day: ");
       terminal.println(now_s);
@@ -274,29 +275,35 @@ void loop() {
     newSSTime=false;
   }
 
-  if ((timeStatus()>1) && (startTime_s < stopTime_s)) { // if RTC is synced
+  if ((timeStatus()>1) && (startTime_s < stopTime_s)) { // if RTC is synced and starttime is less than stoptime
     now_s = hour() *60 *60 + minute() *60 + second();
 	
-    if ((now_s>=stopTime_s)&& timedOn) {//if stopTime has passed by an was switched on --> switch off
+    if ((now_s>=stopTime_s)&& !timedOff) {//if stopTime has passed by an was switched on --> switch off
      
       Blynk.virtualWrite(V5,0);
-      //switchLEDs(false);
+      tagPrintln(F("Good night"));
+      switchLEDs(false);
       delay(500);
-      terminal.flush();
-      timedOn=false;
+      timedOff=true;
+      timedOn=false; //allow timed on
     }
     else if ((now_s>=startTime_s)&& (now_s<stopTime_s) && !timedOn) {// else if between start and stop --> switch ON
 	  
       Blynk.virtualWrite(V5,1);
-      //switchLEDs(true);
+      tagPrintln(F("Good morning"));
+      switchLEDs(true);
       delay(500);
-      terminal.flush();
       timedOn=true;
+      timedOff=false; //allow timed off
+      
     }
   }
 
   if (!isSynced && (timeStatus()>1)) {
+    now_s = hour() *60 *60 + minute() *60 + second();
     tagPrintln("Time Synced");
+    tagPrint(String(now_s));
+    terminal.println(F(" seconds have passed by today"));
     tagPrintln("Date: " + String(day()) + "." + String(month()) + "." + String(year()));
     isSynced=true;
   }
@@ -349,7 +356,7 @@ BLYNK_WRITE(V4) { //BLUE
   newIntensity = true;
 }
 
-BLYNK_WRITE(V5) { //AllOff
+BLYNK_WRITE(V5) { //Manual LED PowerOnOff
   if (param.asInt()){ // ON
     switchLEDs(true);
   }
@@ -396,16 +403,15 @@ void countRPM(void){
 
 void switchLEDs(bool switchOn){
 
-  if (switchOn && !isOn) { //ON
+  if (switchOn) { //ON
    tagPrintln("Switching Lights on");
    analogWrite(NW_PIN,targetIntensity[0]);
    analogWrite(CW_PIN,targetIntensity[1]);
    analogWrite(WW_PIN,targetIntensity[2]);
    analogWrite(RED_PIN,targetIntensity[3]);
    analogWrite(BLUE_PIN,targetIntensity[4]);
-   isOn=true;
   }
-  else if (isOn) { //OFF
+  else { //OFF
    tagPrintln("Switching Lights off");
    //copy5(intensity,targetIntensity); //save old setting in intensity
    analogWrite(NW_PIN,0);
@@ -413,7 +419,6 @@ void switchLEDs(bool switchOn){
    analogWrite(WW_PIN,0);
    analogWrite(RED_PIN,0);
    analogWrite(BLUE_PIN,0);
-   isOn=false;
   }
   
 }
