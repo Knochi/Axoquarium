@@ -1,4 +1,6 @@
 
+
+
 // ESP8266 General and OTA
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
@@ -43,10 +45,10 @@ DHT dht(DHTPIN, DHTTYPE);
 #define FAN_PWM_PIN  D2
 
 
-#define CW_PIN    D5
-#define NW_PIN    D7
-#define WW_PIN    D6
-#define RED_PIN   D0
+#define CW_PIN    D6
+#define NW_PIN    D5
+#define WW_PIN    D0
+#define RED_PIN   D7
 #define BLUE_PIN  D8
 
 // BLYNK Objects
@@ -62,12 +64,24 @@ bool isFirstConnect = true;
 //globals
 int numberOfDevices = 0;
 float maxWaterTemp = 25.0; //maximum allowed Water Temperature
+bool fanIsOn = false;
 
 // intensities of Lamps NW,CW,WW,red,blue
 int intensity[5]={810,500,720,600,600};
 int targetIntensity[5]={0,0,0,0,0};
+int nxtIntensity[5]={0,0,0,0,0};
+byte dimmingPlan[5][64];
 bool newIntensity = true;
 bool isOn=false;
+bool isLog=false;
+
+const uint16_t pwmtable_10[64] PROGMEM =
+{
+    0, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 9, 10,
+    11, 12, 13, 15, 17, 19, 21, 23, 26, 29, 32, 36, 40, 44, 49, 55,
+    61, 68, 76, 85, 94, 105, 117, 131, 146, 162, 181, 202, 225, 250,
+    279, 311, 346, 386, 430, 479, 534, 595, 663, 739, 824, 918, 1023
+};
 
 // timekeeping globals
 long startTime_s = 0;
@@ -80,7 +94,7 @@ bool timedOff= false;
 bool isSynced = false;
 byte dbgLvl = 1;
 
-unsigned int rpmCounter;
+unsigned int rpmCounter=0;
 
 void setup() {
   
@@ -116,6 +130,8 @@ void setup() {
   ArduinoOTA.onStart([]() {
     Serial.println("Start OTA");
     switchLEDs(false); //Turn LEDs Off
+    analogWrite(FAN_PWM_PIN,10); //turn Fan Off
+    
     Blynk.disconnect(); //disconnect from cloud
     Serial.println("BLYNK disconnect");
   });
@@ -214,26 +230,34 @@ void UpdateTemp()
   Serial.println("C");
  #endif
   
-  if (temp1>maxWaterTemp) {
+  if ((temp1>maxWaterTemp)&& !fanIsOn) {
   	Blynk.notify("Achtung! Wassertemperatur zu hoch");
+    tagPrintln("Lüfter wird eingeschaltet");
     analogWrite(FAN_PWM_PIN,900);  //Turn on the Fan
+    fanIsOn=true;
     Blynk.virtualWrite(V6, 900);
   }
-  else if (temp1<maxWaterTemp-0.5) {
+  else if ((temp1<maxWaterTemp-0.5) && fanIsOn) {
     analogWrite(FAN_PWM_PIN,10);  //Turn off the Fan
+    tagPrintln("Lüfter ausgeschaltet");
     Blynk.virtualWrite(V6, 10); // Turn off the Fan
+    fanIsOn=false;
   }
    
  //count pulses for 1 second
+ /*
  attachInterrupt(FANSENS,countRPM,RISING);
  delay(1000);
  detachInterrupt(FANSENS);
  
  if (rpmCounter) fanSpeed = (rpmCounter/2)*60; //2 pulses per revolution
  else fanSpeed = 0;
+ rpmCounter = 0;
+ 
  
  Blynk.virtualWrite(23,fanSpeed); //report fanSpeed to server
-
+ */
+ 
   //Blynk.syncVirtual(V6); //read the Control?
    
 }
@@ -248,12 +272,16 @@ void loop() {
 // intensities of Lamps NW,CW,WW,red,blue
 
   if (newIntensity) {
-    analogWrite(NW_PIN,targetIntensity[0]);
-    analogWrite(CW_PIN,targetIntensity[1]);
-    analogWrite(WW_PIN,targetIntensity[2]);
-    analogWrite(RED_PIN,targetIntensity[3]);
-    analogWrite(BLUE_PIN,targetIntensity[4]);
+    setLEDs(targetIntensity);
     newIntensity=false;
+    copy5(intensity,targetIntensity);
+    tagPrint(F("LEDs set to: "));
+    for (int i=0;i<5;i++){
+    terminal.print(targetIntensity[i]);
+    terminal.print(", ");
+    }
+    terminal.println();
+    terminal.flush();
   }
 
   if (newSSTime && dbgLvl) {
@@ -267,10 +295,7 @@ void loop() {
     else {
       tagPrint("RTC Time is: ");  
       terminal.println(currentTime);
-      terminal.print("Seconds of Day: ");
-      terminal.println(now_s);
     }
-    
     terminal.flush();
     newSSTime=false;
   }
@@ -307,6 +332,7 @@ void loop() {
     tagPrintln("Date: " + String(day()) + "." + String(month()) + "." + String(year()));
     isSynced=true;
   }
+  delay(200);
 } //loop
 
 
@@ -348,6 +374,8 @@ BLYNK_WRITE(V2) { //WW
   newIntensity = true;
 }
 BLYNK_WRITE(V3) { //RED
+  //if (isLog) targetIntensity[3] = pwmtable_10[map(param.asInt(),0,100,0,64)]; //map to 0..64 and take value from LUT
+  //else targetIntensity[3] = map(param.asInt(),0,100,0,1024);
   targetIntensity[3] = param.asInt();
   newIntensity = true;
 }
@@ -392,6 +420,17 @@ TimeInputParam t(param);
   
 }
 
+BLYNK_WRITE(V8){ //Logarithmic LED dimming ON/OFF
+ if (param.asInt()){ // ON
+    isLog=true;
+  }
+  
+  else //OFF
+  {
+   isLog=false;
+  }
+}
+
 void copy5(int target[], int original[]) {
   for (int i=0;i<5;i++)
   target[i]=original[i];
@@ -405,11 +444,7 @@ void switchLEDs(bool switchOn){
 
   if (switchOn) { //ON
    tagPrintln("Switching Lights on");
-   analogWrite(NW_PIN,targetIntensity[0]);
-   analogWrite(CW_PIN,targetIntensity[1]);
-   analogWrite(WW_PIN,targetIntensity[2]);
-   analogWrite(RED_PIN,targetIntensity[3]);
-   analogWrite(BLUE_PIN,targetIntensity[4]);
+   setLEDs(targetIntensity);
   }
   else { //OFF
    tagPrintln("Switching Lights off");
@@ -421,6 +456,37 @@ void switchLEDs(bool switchOn){
    analogWrite(BLUE_PIN,0);
   }
   
+}
+
+void setupLEDDimm(){
+  byte LEDStat[5][3]; //start, end and steps for each LED
+
+ for (int i=0;i<5;i++){
+  LEDStat[i][0]=PWM2Step(intensity[i]);
+  LEDStat[i][1]=PWM2Step(targetIntensity[i]);
+  LEDStat[i][2]=LEDStat[i][1]-LEDStat[i][0];
+ }
+ // set up a plan for each LED over 64 steps
+ for (byte i=0;i<5;i++){
+  for (byte j=0;j<64;i++){
+    dimmingPlan[i][j]=0;   
+  }
+ }
+}
+
+
+void setLEDs (int intensityArr[]){
+   analogWrite(NW_PIN,intensityArr[0]);
+   analogWrite(CW_PIN,intensityArr[1]);
+   analogWrite(WW_PIN,intensityArr[2]);
+   analogWrite(RED_PIN,intensityArr[3]);
+   analogWrite(BLUE_PIN,intensityArr[4]);
+}
+
+byte PWM2Step(unsigned int PWM){
+  for (int i=0;i<64;i++){
+    if (PWM>=pwmtable_10[i]) return i; 
+  }
 }
 
 void tagPrint(String printStr) {
