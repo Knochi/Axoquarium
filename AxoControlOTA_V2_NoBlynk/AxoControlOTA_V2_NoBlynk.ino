@@ -67,12 +67,12 @@ bool isFirstConnect = true;
 
 //globals
 int numberOfDevices = 0;
-float maxWaterTemp = 25.0; //maximum allowed Water Temperature
+float maxWaterTemp = 19.5; //maximum allowed Water Temperature
 bool fanIsOn = false;
 
 // intensities of Lamps NW,CW,WW,red,blue
 int intensity[5]={810,500,720,600,600};
-int targetIntensity[5]={0,0,0,0,0};
+int targetIntensity[5]={810,500,720,600,600};//{0,0,0,0,0};
 int nxtIntensity[5]={0,0,0,0,0};
 byte dimmingPlan[5][64];
 bool newIntensity = true;
@@ -88,9 +88,9 @@ const uint16_t pwmtable_10[64] PROGMEM =
 };
 
 // timekeeping globals
-long startTime_s = 0;
+long startTime_s = 9*3600; //9am
 time_t startTime_t;
-long stopTime_s= 0;
+long stopTime_s= 20*3600+5*60; //8pm
 time_t stopTime_t;
 bool newSSTime = false;
 bool timedOn= false;
@@ -290,29 +290,26 @@ void loop() {
     setLEDs(targetIntensity);
     newIntensity=false;
     copy5(intensity,targetIntensity);
-    /* tagPrint(F("LEDs set to: "));
+    tagPrint(F("LEDs set to: "));
     for (int i=0;i<5;i++){
-      //Serial.print(targetIntensity[i]);
-      //Serial.print(", ");
+      Serial.print(targetIntensity[i]);
+      Serial.print(", ");
     }
-    //Serial.println();
-    //Serial.flush();
-    */
+    Serial.println();
   }
 
   if (newSSTime && dbgLvl) {
     now_s = hour() *60 *60 + minute() *60 + second();
     String currentTime = String(hour()) + ":" + minute() + ":" + second();
-    //tagPrint(F("Start Time is set to: "));
-    //Serial.println(startTime_s);
-    //tagPrint(F("Stop Time is set to: "));
-    //Serial.println(stopTime_s);
+    tagPrint(F("Start Time is set to: "));
+    Serial.println(startTime_s);
+    tagPrint(F("Stop Time is set to: "));
+    Serial.println(stopTime_s);
     if (timeStatus()<2) tagPrintln("Time is not in sync!");
     else {
       tagPrint("RTC Time is: ");  
       Serial.println(currentTime);
     }
-    Serial.flush();
     newSSTime=false;
   }
 
@@ -350,103 +347,6 @@ void loop() {
   }
   delay(200);
 } //loop
-
-
-/* BLYNK_CONNECTED() {
-
-  Serial.println(F("Blynk v" BLYNK_VERSION ": Device started"));
-  Serial.println(F("------------------------------------"));
-  Serial.println(F("Time Sync started"));
-  
-  Serial.flush();
-  
-  if (isFirstConnect) {
-    // Request Blynk server to re-send latest values for all pins
-  Blynk.syncAll();
-
-    // You can also update individual virtual pins like this:
-  //Blynk.syncVirtual(V0, V1, V4);
-	Blynk.virtualWrite(V1, maxWaterTemp);
-    isFirstConnect = false;
-  }
-  rtc.begin(); //sync time on connection
-}
-
-BLYNK_WRITE(V10) {
-	maxWaterTemp = param.asFloat();
-}
-
-BLYNK_WRITE(V0) { //NW
-  targetIntensity[0] = param.asInt();
-  newIntensity = true;
-}
-
-BLYNK_WRITE(V1) { //CW
-  targetIntensity[1] = param.asInt();
-  newIntensity = true;
-}
-BLYNK_WRITE(V2) { //WW
-  targetIntensity[2] = param.asInt();
-  newIntensity = true;
-}
-BLYNK_WRITE(V3) { //RED
-  //if (isLog) targetIntensity[3] = pwmtable_10[map(param.asInt(),0,100,0,64)]; //map to 0..64 and take value from LUT
-  //else targetIntensity[3] = map(param.asInt(),0,100,0,1024);
-  targetIntensity[3] = param.asInt();
-  newIntensity = true;
-}
-BLYNK_WRITE(V4) { //BLUE
-  targetIntensity[4] = param.asInt();
-  newIntensity = true;
-}
-
-BLYNK_WRITE(V5) { //Manual LED PowerOnOff
-  if (param.asInt()){ // ON
-    switchLEDs(true);
-  }
-  
-  else //OFF
-  {
-   switchLEDs(false);
-  }
-}
-
-
-
-BLYNK_WRITE(V6) { //fanControl
-  if (param.asInt()){
-    analogWrite(FAN_PWM_PIN,param.asInt());
-  }
-}
-
-BLYNK_WRITE(V7){ //Time setting
-TimeInputParam t(param);
-
-  if (t.hasStartTime())
-  {
-   startTime_s = param[0].asLong();
-   newSSTime = true;
-  }
-  if (t.hasStopTime())
-   stopTime_s = param[1].asLong();
-   newSSTime = true;
-  {
-    
-  }
-  
-}
-
-BLYNK_WRITE(V8){ //Logarithmic LED dimming ON/OFF
- if (param.asInt()){ // ON
-    isLog=true;
-  }
-  
-  else //OFF
-  {
-   isLog=false;
-  }
-}
-*/
 
 void copy5(int target[], int original[]) {
   for (int i=0;i<5;i++)
@@ -504,6 +404,7 @@ byte PWM2Step(unsigned int PWM){
   for (int i=0;i<64;i++){
     if (PWM>=pwmtable_10[i]) return i; 
   }
+  return 0;
 }
 
 void tagPrint(String printStr) {
@@ -525,7 +426,6 @@ void tagPrintln(String printStr) {
   Serial.print(currentTime);
   Serial.print(">>");
   Serial.println(printStr);
-  Serial.flush();
 }
 
 /*-------- NTP code ----------*/
@@ -586,4 +486,3 @@ void sendNTPpacket(IPAddress &address)
   Udp.write(packetBuffer, NTP_PACKET_SIZE);
   Udp.endPacket();
 }
-
