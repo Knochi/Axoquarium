@@ -70,9 +70,9 @@ int numberOfDevices = 0;
 float maxWaterTemp = 19.5; //maximum allowed Water Temperature
 bool fanIsOn = false;
 
-// intensities of Lamps NW,CW,WW,red,blue
-int intensity[5]={810,500,720,600,600};
-int targetIntensity[5]={810,500,720,600,600};//{0,0,0,0,0};
+// intensities of Lamps NW, CW, WW, red,blue
+int intensity[5]  =    {000,000,000,600,000};
+int targetIntensity[5]={500,300,800,700,300}; //set by default
 int nxtIntensity[5]={0,0,0,0,0};
 byte dimmingPlan[5][64];
 bool newIntensity = true;
