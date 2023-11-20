@@ -20,8 +20,12 @@
 
 //Time
 #include <TimeLib.h> //fetch time from NTP server 
+
+
+// Central European Time (Frankfurt, Paris)
 static const char ntpServerName[] = "2.pool.ntp.org";
-const int timeZone = 1; // CET
+//const int timeZone = 1; // CET (standard time)
+const int timeZone = 2; // CETS (summer time)
 
 WiFiUDP Udp;
 
@@ -41,7 +45,7 @@ DallasTemperature sensors(&oneWire);
 #define DHTTYPE DHT11
 
 #ifdef DHTPIN
-DHT dht(DHTPIN, DHTTYPE);
+  DHT dht(DHTPIN, DHTTYPE);
 #endif
 
 // -- Pin settings -- 
@@ -55,9 +59,6 @@ DHT dht(DHTPIN, DHTTYPE);
 #define RED_PIN   D7
 #define BLUE_PIN  D8
 
-// BLYNK Objects
-//WidgetRTC rtc;
-//WidgetSerial Serial(V11);
 
 //WiFi Setup
 const char* ssid = "LV426";
@@ -65,10 +66,27 @@ const char* password = "19263854466404343353";
 //char auth[] = "ab2f47a18d074345aa20390d27fed878"; //Auth Token for Blynk
 bool isFirstConnect = true;
 
+//Web Server
+WiFiServer server(80);
+String header;
+
+// Current time
+unsigned long currentTime = millis();
+// Previous time
+unsigned long previousTime = 0; 
+// Define timeout time in milliseconds (example: 2000ms = 2s)
+const long timeoutTime = 2000;
+
+
 //globals
 int numberOfDevices = 0;
-float maxWaterTemp = 19.5; //maximum allowed Water Temperature
+float maxWaterTemp = 20.5; //maximum allowed Water Temperature
 bool fanIsOn = false;
+
+float temp1 =0;
+float temp2 =0;
+float hum1 = 0;
+unsigned int fanSpeed=0;
 
 // intensities of Lamps NW, CW, WW, red,blue
 int intensity[5]  =    {000,000,000,600,000};
@@ -117,8 +135,6 @@ void setup() {
   analogWrite(FAN_PWM_PIN, 10); //turn off fan
   delay(500);
   
-  //-- BLYNK --
-  //Blynk.begin(auth,ssid, password);
   WiFi.begin(ssid, password);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
     Serial.println("Connection Failed! Rebooting...");
@@ -186,21 +202,20 @@ void setup() {
   Serial.print(numberOfDevices, DEC);
   Serial.println(" OneWire Devices");
   
-  //-- RTC --
+  //-- NTP --
   //start UDP
   Udp.begin(localPort);
   setSyncProvider(getNtpTime);
   setSyncInterval(10*60); //10minutes
-  
+
+  // Start Server
+  server.begin();
 }
 
 //Function to read Temperature and control Fan
 void UpdateTemp()
 {
-  float temp1 =0;
-  float temp2 =0;
-  float hum1 = 0;
-  unsigned int fanSpeed=0;
+  
 
   rpmCounter=0;
 
@@ -214,22 +229,19 @@ void UpdateTemp()
   }
   
   #ifdef DHTPIN
-  temp2 = dht.readTemperature();
-  hum1 = dht.readHumidity();
-  
-  if (isnan(hum1) || isnan(temp2)) {
-  Serial.println("Failed to read from DHT Sensor");
-  return;
-  } 
+    temp2 = dht.readTemperature();
+    hum1 = dht.readHumidity();
+    
+    if (isnan(hum1) || isnan(temp2)) {
+      Serial.println("Failed to read from DHT Sensor");
+    return;
+    } 
   #endif
    
   Serial.print("Water Temperature: "); Serial.println(temp1);
-  //Blynk.virtualWrite(20,temp1);  //send Temp to server/clients
+  
  
  #ifdef DHTPIN
-  Blynk.virtualWrite(21,temp2);
-  Blynk.virtualWrite(22,hum1);
- 
   Serial.print("Ambient Humidity: ");
   Serial.print(hum1);
   Serial.println("%");
@@ -274,7 +286,8 @@ void loop() {
   long now_s = 0;
   ArduinoOTA.handle();
   //delay(1000);
-  
+  WiFiClient client = server.available(); // wait for client
+
   //Update temps every minute
   if (millis() - timerPrevious >= 60000)
   {
@@ -282,7 +295,69 @@ void loop() {
     timerPrevious = millis();    
   }
 
-  //Blynk.run();
+  if (client) {
+    Serial.println("New Client");
+    String currentLine = "";
+    currentTime = millis();
+    previousTime = currentTime;
+    while (client.connected() && currentTime - previousTime <= timeoutTime) { // loop while the client's connected
+      currentTime = millis();         
+      if (client.available()) {             // if there's bytes to read from the client,
+        char c = client.read();             // read a byte, then
+        Serial.write(c);                    // print it out the serial monitor
+        header += c;
+        if (c == '\n') {                    // if the byte is a newline character
+          // if the current line is blank, you got two newline characters in a row.
+          // that's the end of the client HTTP request, so send a response:
+          if (currentLine.length() == 0) {
+
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+            // and a content-type so the client knows what's coming, then a blank line:
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+
+            // Display the HTML web page
+            client.println("<!DOCTYPE html><html>");
+            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            client.println("<link rel=\"icon\" href=\"data:,\">");
+
+            // CSS to style the on/off buttons 
+            // Feel free to change the background-color and font-size attributes to fit your preferences
+            /*client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            
+            client.println(".button2 {background-color: #77878A;}</style>");
+            */
+            client.println("</head>");
+            
+
+            // Web Page Heading
+            client.println("<body><h1>AxoControl</h1>");
+            
+            client.println("<p>Current water temperature: " +String(temp1) + "</p>");
+            client.println("<p>Maximum water temperature: " +String(maxWaterTemp) + "</p>");
+          
+            
+            client.println("</body></html>");
+            
+            // The HTTP response ends with another blank line
+            client.println();
+            // Break out of the while loop
+            break;
+          } else { // if you got a newline, then clear currentLine
+            currentLine = "";
+          }
+        } 
+        else if (c != '\r') {  // if you got anything else but a carriage return character,
+          currentLine += c;      // add it to the end of the currentLine
+        }
+      }
+    }//while
+  }//client
+  
   //timer.run();
 // intensities of Lamps NW,CW,WW,red,blue
 
